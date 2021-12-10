@@ -1,0 +1,33 @@
+{
+  "name": "cpchain-cli",
+  "version": "0.0.1",
+  "description": "A CLI tool for developing smart contracts on CPChain mainnet",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc --emitDeclarationOnly && spack && shebang-fix"
+  },
+  "bin": {
+    "cpchain-cli": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CPChain/cpchain-cli.git"
+  },
+  "keywords": [
+    "CPChain"
+  ],
+  "author": "liaojl@cpchain.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CPChain/cpchain-cli/issues"
+  },
+  "homepage": "https://github.com/CPChain/cpchain-cli#readme",
+  "devDependencies": {
+    "@swc/cli": "^0.1.52",
+    "@swc/core": "^1.2.118",
+    "swc-loader": "^0.1.15"
+  },
+  "dependencies": {
+    "oclif": "^1.18.4"
+  }
+}

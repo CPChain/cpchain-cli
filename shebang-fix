@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+shebang_node="#!/usr/bin/env node"
+
+(echo '0a'; echo $shebang_node; echo '.'; echo 'wq') | ed -s dist/index.js
