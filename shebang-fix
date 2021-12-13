@@ -3,3 +3,5 @@
 shebang_node="#!/usr/bin/env node"
 
 (echo '0a'; echo $shebang_node; echo '.'; echo 'wq') | ed -s dist/index.js
+
+chmod +x dist/index.js

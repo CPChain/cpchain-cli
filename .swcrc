@@ -3,9 +3,9 @@
         "target": "es5",
         "parser": {
             "syntax": "typescript",
-            "tsx": true,
-            "decorators": true,
-            "dynamicImport": true
+            "tsx": false,
+            "decorators": false,
+            "dynamicImport": false
         }
     },
     "minify": true

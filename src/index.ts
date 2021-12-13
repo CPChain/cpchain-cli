@@ -1,5 +1,8 @@
 import {GenerateConfig, generate} from './generate'
 
+// const minimist = require('minimist').default
+import * as minimist from "minimist"
+
 
 function help() {
     console.log(`Usage: cpchain-cli [generate|help] [options]
@@ -13,12 +16,16 @@ Options:
     `)
 }
 
-function whichCmd(argv) {
+function whichCmd(argv: {_: [string]}) {
   return argv._.length > 0 && argv._[0]
 }
 
 function main() {
-  let argv = require('minimist')(process.argv.slice(2));
+  let argvCall = minimist
+  if (typeof minimist !== 'function') {
+    argvCall = minimist.default
+  }
+  let argv = argvCall(process.argv.slice(2));
   const cmd = whichCmd(argv)
   if (cmd === 'help') {
     return help()

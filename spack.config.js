@@ -9,4 +9,5 @@ module.exports = config({
     path: __dirname + "/dist",
     name: "index.js"
   },
+  target: "node"
 });

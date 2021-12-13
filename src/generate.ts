@@ -1,5 +1,5 @@
 
-import * as fs from "fs"
+const fs = require("fs")
 
 export class GenerateConfig {
     name: string
