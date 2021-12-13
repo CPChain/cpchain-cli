@@ -28,6 +28,7 @@
     "swc-loader": "^0.1.15"
   },
   "dependencies": {
+    "minimist": "^1.2.5",
     "oclif": "^1.18.4"
   }
 }
