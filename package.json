@@ -1,11 +1,10 @@
 {
   "name": "cpchain-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A CLI tool for developing smart contracts on CPChain mainnet",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc --emitDeclarationOnly && spack && shebang-fix",
-    "postinstall": "npm run build"
+    "build": "tsc --emitDeclarationOnly && spack && shebang-fix"
   },
   "bin": {
     "cpchain-cli": "dist/index.js"
