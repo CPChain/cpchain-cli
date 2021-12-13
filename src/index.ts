@@ -32,7 +32,7 @@ function main() {
   }
   else if (cmd === 'generate') {
     const config = new GenerateConfig()
-    config.name = argv.name || "example"
+    config.name = argv.name || argv.n || "example"
     return generate(config)
   }
   help()
