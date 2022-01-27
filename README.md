@@ -23,13 +23,26 @@ truffle test
 
 Before deploying contract on the mainnet, we suggest developers the smart contracts on [Testnet](https://testnet.cpchain.io/#/) first to secure test. You can get Test CPC coins by the [faucet](https://testnet.cpchain.io/#/faucet). This faucet drips 100 CPC every 10 seconds. You can register your account in our queue.
 
+### Create account
+
+```bash
+
+# install tools
+pip3 install cpc-fusion
+
+# create a new account
+cpc-fusion account create
+
+```
+
+### Deploy
+
+Now, copy your address and access [faucet](https://testnet.cpchain.io/#/faucet) to get test coins. Then build your contract and deploy it on Testnet:
+
 ```bash
 
 # build contracts
 npm run build
-
-# install tools
-pip3 install cpc-fusion
 
 # deploy on testnet (Specify your keystore)
 cpc-fusion deploy --keystore <The path of your keystore>  --abi build/contracts/MyContract.json --endpoint https://civilian.testnet.cpchain.io --chainID 41
