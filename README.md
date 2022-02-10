@@ -50,6 +50,42 @@ cpc-fusion deploy --keystore <The path of your keystore>  --abi build/contracts/
 
 ```
 
+### Manage Contract by Command-Line
+
+After deploying your contract, you will need to manage it. The cpc-fusion can also support managing deployed contract. Please run as below to get all commands:
+
+```bash
+
+cpc-fusion -h
+
+```
+
+If you want to check all configurations, you can use `cpc-fusion get-configs -h`, for example:
+
+```bash
+
+cpc-fusion get-configs --abi build/contracts/HelloWorld.json --address <contract address>
+
+```
+
+If you want to call your contract, you can use `cpc-fusion call-func -h`, for example:
+
+```bash
+
+cpc-fusion call-func --keystore <keystore/key> --address <contract address> --abi build/contracts/HelloWorld.json --function <function name> --parameters <parameters>
+
+```
+
+Add you can add `--value` to specify the amount of `CPC`.
+
+If you want to call `view` function to check something, you can use `cpc-fusion view-func -h`, for example:
+
+```bash
+
+cpc-fusion view-func --abi build/contracts/HelloWorld.json --address <contract address> --function <function name> --parameters <parameters>
+
+```
+
 ## Deploy on Mainnet
 
 ```bash
