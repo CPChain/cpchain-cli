@@ -1,11 +1,11 @@
-const fs = require("fs");
+const fs = require('fs')
 
 export class GenerateConfig {
   name: string;
 }
 
-function generateConfig(dir: string) {
-  const config_path = `${dir}/truffle-config.js`;
+function generateConfig (dir: string) {
+  const configPath = `${dir}/truffle-config.js`
   const config = `/**
 * Use this file to configure your truffle project. It's seeded with some
 * common settings for different networks and features like migrations,
@@ -51,15 +51,15 @@ module.exports = {
 
     plugins: ["solidity-coverage"]
 };
-`;
-  fs.writeFileSync(config_path, config);
+`
+  fs.writeFileSync(configPath, config)
 }
 
-function generateContracts(dir: string, name: string) {
-  const contracts_dir = `${dir}/contracts`;
-  fs.mkdirSync(contracts_dir);
+function generateContracts (dir: string, name: string) {
+  const contractsDir = `${dir}/contracts`
+  fs.mkdirSync(contractsDir)
 
-  const migrations_path = `${contracts_dir}/Migrations.sol`;
+  const migrationsPath = `${contractsDir}/Migrations.sol`
   const migrations = `// SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
@@ -79,10 +79,10 @@ contract Migrations {
     last_completed_migration = completed;
     }
 }
-`;
-  name = name[0].toUpperCase() + name.substr(1);
-  const example_path = `${contracts_dir}/${name}.sol`;
-  const example_contract = `pragma solidity ^0.4.24;
+`
+  name = name[0].toUpperCase() + name.substr(1)
+  const examplePath = `${contractsDir}/${name}.sol`
+  const exampleContract = `pragma solidity ^0.4.24;
 
 contract ${name} {
     address owner; // owner has permissions to modify parameters
@@ -94,41 +94,41 @@ contract ${name} {
         return "Hello, world";
     }
 }
-`;
-  fs.writeFileSync(migrations_path, migrations);
-  fs.writeFileSync(example_path, example_contract);
+`
+  fs.writeFileSync(migrationsPath, migrations)
+  fs.writeFileSync(examplePath, exampleContract)
 
   // migrations
-  const migrations_dir = `${dir}/migrations`;
-  fs.mkdirSync(migrations_dir);
+  const migrationsDir = `${dir}/migrations`
+  fs.mkdirSync(migrationsDir)
 
-  const initial_migration_path = `${migrations_dir}/1_initial_migration.js`;
-  const initial_migration = `const Migrations = artifacts.require("Migrations");
+  const initialMigrationPath = `${migrationsDir}/1_initial_migration.js`
+  const initialMigration = `const Migrations = artifacts.require("Migrations");
 
 module.exports = function (deployer) {
     deployer.deploy(Migrations);
 };
-`;
-  fs.writeFileSync(initial_migration_path, initial_migration);
+`
+  fs.writeFileSync(initialMigrationPath, initialMigration)
 
-  const deploy_migration_path = `${migrations_dir}/2_deploy_contracts.js`;
-  const deploy_contracts = `// Deploy ${name}
+  const deployMigrationPath = `${migrationsDir}/2_deploy_contracts.js`
+  const deployContracts = `// Deploy ${name}
 var ${name} = artifacts.require("./${name}.sol");
 
 module.exports = function(deployer) {
         deployer.deploy(${name}); //"参数在第二个变量携带"
 };
-`;
-  fs.writeFileSync(deploy_migration_path, deploy_contracts);
+`
+  fs.writeFileSync(deployMigrationPath, deployContracts)
 
   // test
-  const test_dir = `${dir}/test`;
-  fs.mkdirSync(test_dir);
+  const testDir = `${dir}/test`
+  fs.mkdirSync(testDir)
 
-  const gitkeep = `${test_dir}/.gitkeep`;
-  fs.writeFileSync(gitkeep, "");
+  const gitkeep = `${testDir}/.gitkeep`
+  fs.writeFileSync(gitkeep, '')
 
-  const test_path = `${test_dir}/Test${name}.js`;
+  const testPath = `${testDir}/Test${name}.js`
   const test = `const ${name} = artifacts.require("${name}");
 
 contract("${name}", (accounts) => {
@@ -138,13 +138,13 @@ contract("${name}", (accounts) => {
     console.log(text)
     })
 })
-`;
-  fs.writeFileSync(test_path, test);
+`
+  fs.writeFileSync(testPath, test)
 }
 
-function generatePackageJson(dir: string) {
-  const path = `${dir}/package.json`;
-  const package_json = `{
+function generatePackageJson (dir: string) {
+  const path = `${dir}/package.json`
+  const packageJson = `{
     "scripts": {
         "build": "truffle build",
         "test": "truffle test",
@@ -157,13 +157,13 @@ function generatePackageJson(dir: string) {
         "web3": "^1.3.5"
     }
 }
-`;
-  fs.writeFileSync(path, package_json);
+`
+  fs.writeFileSync(path, packageJson)
 }
 
-function generateREADME(dir: string, name: string) {
-  name = name[0].toUpperCase() + name.substr(1);
-  const path = `${dir}/README.md`;
+function generateREADME (dir: string, name: string) {
+  name = name[0].toUpperCase() + name.substr(1)
+  const path = `${dir}/README.md`
   const readme = `# ${name} Contract
 
 ## Setup
@@ -177,33 +177,33 @@ truffle test
 
 
 \`\`\`
-`;
-  fs.writeFileSync(path, readme);
+`
+  fs.writeFileSync(path, readme)
 }
 
-function generateGitIgnore(dir: string) {
-  const path = `${dir}/.gitignore`;
+function generateGitIgnore (dir: string) {
+  const path = `${dir}/.gitignore`
   const gitignore = `node_modules
 coverage.json
-`;
-  fs.writeFileSync(path, gitignore);
+`
+  fs.writeFileSync(path, gitignore)
 }
 
-export function generate(config: GenerateConfig) {
+export function generate (config: GenerateConfig) {
   // generate dirs
-  const dir = config.name;
+  const dir = config.name
   if (fs.existsSync(dir)) {
-    const results = fs.readdirSync(dir);
+    const results = fs.readdirSync(dir)
     if (results.length > 0) {
-      throw new Error(`The directory ${dir} is not empty`);
+      throw new Error(`The directory ${dir} is not empty`)
     }
   } else {
-    fs.mkdirSync(dir);
+    fs.mkdirSync(dir)
   }
 
-  generateConfig(dir);
-  generateContracts(dir, config.name);
-  generatePackageJson(dir);
-  generateREADME(dir, config.name);
-  generateGitIgnore(dir);
+  generateConfig(dir)
+  generateContracts(dir, config.name)
+  generatePackageJson(dir)
+  generateREADME(dir, config.name)
+  generateGitIgnore(dir)
 }

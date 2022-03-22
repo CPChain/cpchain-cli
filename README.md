@@ -113,3 +113,4 @@ ts-node src/index.ts -h
 ## References
 
 + [SWC](https://swc.rs/docs/getting-started)
++ [ESLint Rules](https://eslint.org/docs/rules/)

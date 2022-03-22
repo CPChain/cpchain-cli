@@ -11,11 +11,11 @@ export class PackageJson {
 export class PackageJsonBuiler {
   private package: PackageJson;
 
-  constructor() {
-    this.reset();
+  constructor () {
+    this.reset()
   }
 
-  public reset() {
-    this.package = new PackageJson();
+  public reset () {
+    this.package = new PackageJson()
   }
 }

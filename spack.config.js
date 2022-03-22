@@ -1,13 +1,14 @@
 // spack.config.js
-const { config } = require("@swc/core/spack");
+const { config } = require('@swc/core/spack')
+const path = require('path')
 
 module.exports = config({
   entry: {
-    web: __dirname + "/src/index.ts",
+    web: path.join(__dirname, '/src/index.ts')
   },
   output: {
-    path: __dirname + "/dist",
-    name: "index.js"
+    path: path.join(__dirname, '/dist'),
+    name: 'index.js'
   },
-  target: "node"
-});
+  target: 'node'
+})
