@@ -11,36 +11,44 @@ export class PackageJsonBuiler {
     this.package = new PackageJson()
   }
 
-  public setName (name: string) {
+  public setName (name: string) : PackageJsonBuiler {
     this.package.name = name
+    return this
   }
 
-  public setVersion (version: string) {
+  public setVersion (version: string) : PackageJsonBuiler {
     this.package.version = version
+    return this
   }
 
-  public setAuthor (author: string) {
+  public setAuthor (author: string) : PackageJsonBuiler {
     this.package.author = author
+    return this
   }
 
-  public setDescription (description: string) {
+  public setDescription (description: string) : PackageJsonBuiler {
     this.package.description = description
+    return this
   }
 
-  public setLicense (license: string) {
+  public setLicense (license: string) : PackageJsonBuiler {
     this.package.license = license
+    return this
   }
 
-  public addDevDependencies (name: string, version: string) {
+  public addDevDependencies (name: string, version: string) : PackageJsonBuiler {
     this.package.devDependencies[name] = version
+    return this
   }
 
-  public addDependencies (name: string, version: string) {
+  public addDependencies (name: string, version: string) : PackageJsonBuiler {
     this.package.dependencies[name] = version
+    return this
   }
 
-  public addScript (name: string, cmd: string) {
+  public addScript (name: string, cmd: string) : PackageJsonBuiler {
     this.package.scripts[name] = cmd
+    return this
   }
 
   public build () : PackageJson {
