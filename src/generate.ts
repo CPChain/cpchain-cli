@@ -1,13 +1,12 @@
-
-const fs = require("fs")
+const fs = require("fs");
 
 export class GenerateConfig {
-    name: string
+  name: string;
 }
 
 function generateConfig(dir: string) {
-    const config_path = `${dir}/truffle-config.js`
-    const config = `/**
+  const config_path = `${dir}/truffle-config.js`;
+  const config = `/**
 * Use this file to configure your truffle project. It's seeded with some
 * common settings for different networks and features like migrations,
 * compilation and testing. Uncomment the ones you need or modify
@@ -52,16 +51,16 @@ module.exports = {
 
     plugins: ["solidity-coverage"]
 };
-`
-    fs.writeFileSync(config_path, config)
+`;
+  fs.writeFileSync(config_path, config);
 }
 
 function generateContracts(dir: string, name: string) {
-    const contracts_dir = `${dir}/contracts`
-    fs.mkdirSync(contracts_dir)
+  const contracts_dir = `${dir}/contracts`;
+  fs.mkdirSync(contracts_dir);
 
-    const migrations_path = `${contracts_dir}/Migrations.sol`
-    const migrations = `// SPDX-License-Identifier: MIT
+  const migrations_path = `${contracts_dir}/Migrations.sol`;
+  const migrations = `// SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
 contract Migrations {
@@ -80,10 +79,10 @@ contract Migrations {
     last_completed_migration = completed;
     }
 }
-`
-    name = name[0].toUpperCase() + name.substr(1)
-    const example_path = `${contracts_dir}/${name}.sol`
-    const example_contract = `pragma solidity ^0.4.24;
+`;
+  name = name[0].toUpperCase() + name.substr(1);
+  const example_path = `${contracts_dir}/${name}.sol`;
+  const example_contract = `pragma solidity ^0.4.24;
 
 contract ${name} {
     address owner; // owner has permissions to modify parameters
@@ -95,42 +94,42 @@ contract ${name} {
         return "Hello, world";
     }
 }
-`
-    fs.writeFileSync(migrations_path, migrations)
-    fs.writeFileSync(example_path, example_contract)
+`;
+  fs.writeFileSync(migrations_path, migrations);
+  fs.writeFileSync(example_path, example_contract);
 
-    // migrations
-    const migrations_dir = `${dir}/migrations`
-    fs.mkdirSync(migrations_dir)
+  // migrations
+  const migrations_dir = `${dir}/migrations`;
+  fs.mkdirSync(migrations_dir);
 
-    const initial_migration_path = `${migrations_dir}/1_initial_migration.js`
-    const initial_migration = `const Migrations = artifacts.require("Migrations");
+  const initial_migration_path = `${migrations_dir}/1_initial_migration.js`;
+  const initial_migration = `const Migrations = artifacts.require("Migrations");
 
 module.exports = function (deployer) {
     deployer.deploy(Migrations);
 };
-`
-    fs.writeFileSync(initial_migration_path, initial_migration)
+`;
+  fs.writeFileSync(initial_migration_path, initial_migration);
 
-    const deploy_migration_path = `${migrations_dir}/2_deploy_contracts.js`
-    const deploy_contracts = `// Deploy ${name}
+  const deploy_migration_path = `${migrations_dir}/2_deploy_contracts.js`;
+  const deploy_contracts = `// Deploy ${name}
 var ${name} = artifacts.require("./${name}.sol");
 
 module.exports = function(deployer) {
         deployer.deploy(${name}); //"参数在第二个变量携带"
 };
-`
-    fs.writeFileSync(deploy_migration_path, deploy_contracts)
+`;
+  fs.writeFileSync(deploy_migration_path, deploy_contracts);
 
-    // test
-    const test_dir = `${dir}/test`
-    fs.mkdirSync(test_dir)
+  // test
+  const test_dir = `${dir}/test`;
+  fs.mkdirSync(test_dir);
 
-    const gitkeep = `${test_dir}/.gitkeep`
-    fs.writeFileSync(gitkeep, "")
+  const gitkeep = `${test_dir}/.gitkeep`;
+  fs.writeFileSync(gitkeep, "");
 
-    const test_path = `${test_dir}/Test${name}.js`
-    const test = `const ${name} = artifacts.require("${name}");
+  const test_path = `${test_dir}/Test${name}.js`;
+  const test = `const ${name} = artifacts.require("${name}");
 
 contract("${name}", (accounts) => {
     it("Greet", async () => {
@@ -139,13 +138,13 @@ contract("${name}", (accounts) => {
     console.log(text)
     })
 })
-`
-    fs.writeFileSync(test_path, test)
+`;
+  fs.writeFileSync(test_path, test);
 }
 
 function generatePackageJson(dir: string) {
-    const path = `${dir}/package.json`
-    const package_json = `{
+  const path = `${dir}/package.json`;
+  const package_json = `{
     "scripts": {
         "build": "truffle build",
         "test": "truffle test",
@@ -158,14 +157,14 @@ function generatePackageJson(dir: string) {
         "web3": "^1.3.5"
     }
 }
-`
-    fs.writeFileSync(path, package_json)
+`;
+  fs.writeFileSync(path, package_json);
 }
 
 function generateREADME(dir: string, name: string) {
-    name = name[0].toUpperCase() + name.substr(1)
-    const path = `${dir}/README.md`
-    const readme = `# ${name} Contract
+  name = name[0].toUpperCase() + name.substr(1);
+  const path = `${dir}/README.md`;
+  const readme = `# ${name} Contract
 
 ## Setup
 
@@ -178,33 +177,33 @@ truffle test
 
 
 \`\`\`
-`
-    fs.writeFileSync(path, readme)
+`;
+  fs.writeFileSync(path, readme);
 }
 
 function generateGitIgnore(dir: string) {
-    const path = `${dir}/.gitignore`
-    const gitignore = `node_modules
+  const path = `${dir}/.gitignore`;
+  const gitignore = `node_modules
 coverage.json
-`
-    fs.writeFileSync(path, gitignore)
+`;
+  fs.writeFileSync(path, gitignore);
 }
 
 export function generate(config: GenerateConfig) {
-    // generate dirs
-    const dir = config.name
-    if (fs.existsSync(dir)) {
-        const results = fs.readdirSync(dir)
-        if (results.length > 0) {
-            throw new Error(`The directory ${dir} is not empty`)
-        }
-    } else {
-        fs.mkdirSync(dir)
+  // generate dirs
+  const dir = config.name;
+  if (fs.existsSync(dir)) {
+    const results = fs.readdirSync(dir);
+    if (results.length > 0) {
+      throw new Error(`The directory ${dir} is not empty`);
     }
+  } else {
+    fs.mkdirSync(dir);
+  }
 
-    generateConfig(dir)
-    generateContracts(dir, config.name)
-    generatePackageJson(dir)
-    generateREADME(dir, config.name)
-    generateGitIgnore(dir)
+  generateConfig(dir);
+  generateContracts(dir, config.name);
+  generatePackageJson(dir);
+  generateREADME(dir, config.name);
+  generateGitIgnore(dir);
 }
