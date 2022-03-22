@@ -103,7 +103,7 @@ npm i
 
 npm link
 
-cpchain-cli -v
+ts-node src/index.ts -h
 
 # publish
 # npm publish

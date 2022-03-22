@@ -182,6 +182,14 @@ truffle test
     fs.writeFileSync(path, readme)
 }
 
+function generateGitIgnore(dir: string) {
+    const path = `${dir}/.gitignore`
+    const gitignore = `node_modules
+coverage.json
+`
+    fs.writeFileSync(path, gitignore)
+}
+
 export function generate(config: GenerateConfig) {
     // generate dirs
     const dir = config.name
@@ -198,5 +206,5 @@ export function generate(config: GenerateConfig) {
     generateContracts(dir, config.name)
     generatePackageJson(dir)
     generateREADME(dir, config.name)
-
+    generateGitIgnore(dir)
 }
