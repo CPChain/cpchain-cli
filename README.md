@@ -105,6 +105,10 @@ npm link
 
 ts-node src/index.ts -h
 
+npm run lint
+
+npm run build
+
 # publish
 # npm publish
 

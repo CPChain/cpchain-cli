@@ -1,3 +1,5 @@
+import { PackageJsonBuiler } from './builder'
+
 const fs = require('fs')
 
 export class GenerateConfig {
@@ -143,22 +145,20 @@ contract("${name}", (accounts) => {
 }
 
 function generatePackageJson (dir: string) {
-  const path = `${dir}/package.json`
-  const packageJson = `{
-    "scripts": {
-        "build": "truffle build",
-        "test": "truffle test",
-        "test:coverage": "truffle run coverage"
-    },
-    "dependencies": {
-        "solidity-coverage": "^0.7.16",
-        "truffle": "^5.3.2",
-        "truffle-assertions": "^0.9.2",
-        "web3": "^1.3.5"
-    }
-}
-`
-  fs.writeFileSync(path, packageJson)
+  const builder = new PackageJsonBuiler()
+  // scripts
+  builder.addScript('build', 'truffle build')
+  builder.addScript('test', 'truffle test')
+  builder.addScript('test:coverage', 'truffle run coverage')
+
+  // dependencies
+  builder.addDependencies('solidity-coverage', '0.7.16')
+  builder.addDependencies('truffle', '^5.3.2')
+  builder.addDependencies('truffle-assertions', '^0.9.2')
+  builder.addDependencies('web3', '^1.3.5')
+
+  // build and write to file
+  builder.build().writeTo(dir)
 }
 
 function generateREADME (dir: string, name: string) {

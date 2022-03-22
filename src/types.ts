@@ -1,21 +1,25 @@
+const fs = require('fs')
+
 export class PackageJson {
   name: string;
   version: string;
   description: string;
   author: string;
   license: string;
+  scripts: {};
   devDependencies: {};
   dependencies: {};
-}
-
-export class PackageJsonBuiler {
-  private package: PackageJson;
 
   constructor () {
-    this.reset()
+    this.license = 'MIT'
+    this.scripts = {}
+    this.dependencies = {}
+    this.devDependencies = {}
   }
 
-  public reset () {
-    this.package = new PackageJson()
+  public writeTo (dir: string) {
+    const path = `${dir}/package.json`
+    const packageJson = JSON.stringify(this, null, 2)
+    fs.writeFileSync(path, packageJson)
   }
 }
