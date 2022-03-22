@@ -1,4 +1,4 @@
-import { GenerateConfig, generate } from './generate'
+import { GenerateConfig, generate } from './generate';
 
 // const minimist = require('minimist').default
 import * as minimist from 'minimist'
