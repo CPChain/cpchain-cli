@@ -1,4 +1,4 @@
-import { PackageJson } from './types'
+import { PackageJson } from '../types'
 export declare class PackageJsonBuiler {
     private package;
     constructor();
