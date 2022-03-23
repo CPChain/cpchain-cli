@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 shebang_node="#!/usr/bin/env node"
+filename="bundle.cjs"
 
-(echo '0a'; echo $shebang_node; echo '.'; echo 'wq') | ed -s dist/index.js
+(echo '0a'; echo $shebang_node; echo '.'; echo 'wq') | ed -s dist/$filename
 
-chmod +x dist/index.js
+chmod +x dist/$filename
