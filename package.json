@@ -5,7 +5,6 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "ts": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm $@",
     "clean": "rm -rf dist",
     "build": "npm run clean && webpack && shebang-fix",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",

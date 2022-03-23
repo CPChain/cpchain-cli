@@ -107,7 +107,7 @@ npm i
 
 npm link
 
-npm run ts src/index.ts -h
+scripts/run src/index.ts -h
 
 npm run lint
 

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm $@
