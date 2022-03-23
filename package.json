@@ -2,7 +2,7 @@
   "name": "cpchain-cli",
   "version": "0.0.3",
   "description": "A CLI tool for developing smart contracts on CPChain mainnet",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc --emitDeclarationOnly && spack && shebang-fix",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
@@ -40,6 +40,8 @@
   },
   "dependencies": {
     "@types/node": "^16.11.12",
+    "boxen": "^6.2.1",
+    "commander": "^9.1.0",
     "minimist": "^1.2.5",
     "oclif": "^1.18.4"
   }

@@ -1,6 +1,5 @@
 import { GenerateConfig, generate } from './generate'
-
-// const minimist = require('minimist').default
+// import boxen from 'boxen'
 import * as minimist from 'minimist'
 
 function help () {
@@ -19,13 +18,31 @@ function whichCmd (argv: { _: [string] }) {
   return argv._.length > 0 && argv._[0]
 }
 
-function main () {
-  let argvCall = minimist
-  if (typeof minimist !== 'function') {
-    argvCall = minimist.default
+function getCaller (caller: any) {
+  if (typeof caller !== 'function') {
+    return caller.default
   }
+  return caller
+}
+
+// function showBox (message: string) {
+//   const box = boxen(message, {
+//     align: 'center',
+//     borderColor: 'green',
+//     dimBorder: true,
+//     padding: 1
+//   })
+//   console.log(box + '\n')
+// }
+
+function main () {
+  const argvCall = getCaller(minimist)
   const argv = argvCall(process.argv.slice(2))
   const cmd = whichCmd(argv)
+
+  // show box
+  // showBox('CPChain CLI: A scaffold for developing smart contract on CPChain')
+
   if (cmd === 'help') {
     return help()
   } else if (cmd === 'generate') {
