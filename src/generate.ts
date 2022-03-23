@@ -155,6 +155,8 @@ function generatePackageJson (dir: string) {
     .addDependencies('truffle', '^5.3.2')
     .addDependencies('truffle-assertions', '^0.9.2')
     .addDependencies('web3', '^1.3.5')
+    .addDependencies('@cpchain-tools/dapps-test-helpers', '^0.0.3')
+    .addDependencies('@cpchain-tools/cpchain-contracts', '^0.0.3')
 
   // build and write to file
   builder.build().writeTo(dir)

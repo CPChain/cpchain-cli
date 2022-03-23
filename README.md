@@ -19,6 +19,10 @@ truffle test
 
 ```
 
+## Base Contracts
+
+The CPChain foundation has provided this [repo](https://github.com/CPChain/cpchain-dapps-utils) which has many tested base contracts. Developers can use it to develop and test smart contracts.
+
 ## Deploy on Testnet
 
 Before deploying contract on the mainnet, we suggest developers the smart contracts on [Testnet](https://testnet.cpchain.io/#/) first to secure test. You can get Test CPC coins by the [faucet](https://testnet.cpchain.io/#/faucet). This faucet drips 100 CPC every 10 seconds. You can register your account in our queue.
