@@ -1,6 +1,5 @@
 import { PackageJsonBuiler } from './builder'
-
-const fs = require('fs')
+import * as fs from 'fs'
 
 export class GenerateConfig {
   name: string;

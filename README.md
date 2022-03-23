@@ -103,9 +103,11 @@ npm i
 
 npm link
 
-ts-node src/index.ts -h
+node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts -h
 
 npm run lint
+
+npm run lint:fix
 
 npm run build
 
@@ -113,6 +115,12 @@ npm run build
 # npm publish
 
 ```
+
+## FAQ
+
+### 为什么不用 swc 打包
+
+因为当前版本仅支持 commonjs 打包，不支持 ES Modules（[官方文档](https://swc.rs/docs/configuration/bundling)），考虑当需跟上最新的发展，以及很多库已转向 ES Modules，故先弃用 swc 打包方式。
 
 ## References
 

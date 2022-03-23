@@ -1,5 +1,5 @@
 import { GenerateConfig, generate } from './generate'
-// import boxen from 'boxen'
+import boxen from 'boxen'
 import * as minimist from 'minimist'
 
 function help () {
@@ -25,15 +25,16 @@ function getCaller (caller: any) {
   return caller
 }
 
-// function showBox (message: string) {
-//   const box = boxen(message, {
-//     align: 'center',
-//     borderColor: 'green',
-//     dimBorder: true,
-//     padding: 1
-//   })
-//   console.log(box + '\n')
-// }
+function showBox (message: string) {
+  const box = boxen(message, {
+    align: 'center',
+    borderStyle: 'double',
+    borderColor: 'green',
+    dimBorder: true,
+    padding: 1
+  })
+  console.log(box + '\n')
+}
 
 function main () {
   const argvCall = getCaller(minimist)
@@ -41,7 +42,7 @@ function main () {
   const cmd = whichCmd(argv)
 
   // show box
-  // showBox('CPChain CLI: A scaffold for developing smart contract on CPChain')
+  showBox('CPChain CLI: A scaffold for developing smart contracts on CPChain')
 
   if (cmd === 'help') {
     return help()

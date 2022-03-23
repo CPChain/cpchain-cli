@@ -3,10 +3,11 @@
   "version": "0.0.3",
   "description": "A CLI tool for developing smart contracts on CPChain mainnet",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc --emitDeclarationOnly && spack && shebang-fix",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
-    "lint-fix": "eslint --ignore-path .eslintignore --ext .js,.ts --fix .",
+    "lint:fix": "eslint --ignore-path .eslintignore --ext .js,.ts --fix .",
     "prepare": "husky install"
   },
   "bin": {
@@ -26,8 +27,8 @@
   },
   "homepage": "https://github.com/CPChain/cpchain-cli#readme",
   "devDependencies": {
-    "@swc/cli": "^0.1.52",
-    "@swc/core": "^1.2.118",
+    "@swc/cli": "^0.1.56",
+    "@swc/core": "^1.2.160",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "eslint": "^7.32.0",
@@ -43,6 +44,7 @@
     "boxen": "^6.2.1",
     "commander": "^9.1.0",
     "minimist": "^1.2.5",
-    "oclif": "^1.18.4"
+    "oclif": "^1.18.4",
+    "ts-node": "^10.7.0"
   }
 }

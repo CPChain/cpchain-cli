@@ -1,6 +1,9 @@
 {
     "exclude": ["dist"],
     "compilerOptions": {
-        "declaration": true
+        "declaration": true,
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "node"
     }
 }
