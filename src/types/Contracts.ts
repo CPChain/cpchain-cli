@@ -6,6 +6,7 @@ export interface BaseContract {
 }
 
 export class Contracts {
+  private solcVersion: string = '^0.4.24'
   name: string;
   parent: BaseContract[];
 
@@ -13,13 +14,10 @@ export class Contracts {
     this.parent = []
   }
 
-  public writeTo (dir: string) {
-    const contractsDir = `${dir}/contracts`
-    fs.mkdirSync(contractsDir)
-
+  private writeMigrationContracts (contractsDir: string) {
     const migrationsPath = `${contractsDir}/Migrations.sol`
     const migrations = `// SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity ${this.solcVersion};
 
 contract Migrations {
     address public owner = msg.sender;
@@ -38,10 +36,14 @@ contract Migrations {
     }
 }
 `
+    fs.writeFileSync(migrationsPath, migrations)
+  }
+
+  private writeContract (contractsDir: string) {
     const name = this.name
 
     const examplePath = `${contractsDir}/${name}.sol`
-    const exampleContract = `pragma solidity ^0.4.24;
+    const exampleContract = `pragma solidity ${this.solcVersion};
 
 contract ${name} {
     address owner; // owner has permissions to modify parameters
@@ -54,10 +56,12 @@ contract ${name} {
     }
 }
 `
-    fs.writeFileSync(migrationsPath, migrations)
     fs.writeFileSync(examplePath, exampleContract)
+  }
 
+  private writeMigrationsDir (dir: string) {
     // migrations
+    const name = this.name
     const migrationsDir = `${dir}/migrations`
     fs.mkdirSync(migrationsDir)
 
@@ -65,7 +69,7 @@ contract ${name} {
     const initialMigration = `const Migrations = artifacts.require("Migrations");
 
 module.exports = function (deployer) {
-    deployer.deploy(Migrations);
+  deployer.deploy(Migrations);
 };
 `
     fs.writeFileSync(initialMigrationPath, initialMigration)
@@ -75,11 +79,14 @@ module.exports = function (deployer) {
 var ${name} = artifacts.require("./${name}.sol");
 
 module.exports = function(deployer) {
-        deployer.deploy(${name}); //"参数在第二个变量携带"
+  deployer.deploy(${name}); //"参数在第二个变量携带"
 };
 `
     fs.writeFileSync(deployMigrationPath, deployContracts)
+  }
 
+  private writeTests (dir: string) {
+    const name = this.name
     // test
     const testDir = `${dir}/test`
     fs.mkdirSync(testDir)
@@ -91,14 +98,24 @@ module.exports = function(deployer) {
     const test = `const ${name} = artifacts.require("${name}");
 
 contract("${name}", (accounts) => {
-    it("Greet", async () => {
+  it("Greet", async () => {
     const instance = await ${name}.deployed()
     const text = await instance.greet()
     console.log(text)
-    })
+  })
 })
 `
     fs.writeFileSync(testPath, test)
+  }
+
+  public writeTo (dir: string) {
+    const contractsDir = `${dir}/contracts`
+    fs.mkdirSync(contractsDir)
+
+    this.writeMigrationContracts(contractsDir)
+    this.writeContract(contractsDir)
+    this.writeMigrationsDir(dir)
+    this.writeTests(dir)
   }
 }
 
