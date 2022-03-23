@@ -3,15 +3,16 @@ import * as fs from 'fs'
 export interface BaseContract {
   name: string;
   desc: string;
+  modulePath: string;
 }
 
 export class Contracts {
   private solcVersion: string = '^0.4.24'
   name: string;
-  parent: BaseContract[];
+  parents: BaseContract[];
 
   constructor () {
-    this.parent = []
+    this.parents = []
   }
 
   private writeMigrationContracts (contractsDir: string) {
@@ -41,14 +42,23 @@ contract Migrations {
 
   private writeContract (contractsDir: string) {
     const name = this.name
-
     const examplePath = `${contractsDir}/${name}.sol`
-    const exampleContract = `pragma solidity ${this.solcVersion};
 
-contract ${name} {
-    address owner; // owner has permissions to modify parameters
+    // import list
+    const importList = []
+    const parents = []
+    for (const c of this.parents) {
+      importList.push(`import "${c.modulePath}";`)
+      parents.push(c.name)
+    }
+
+    const importListStr = importList.length === 0 ? '' : `\n${importList.join('\n')}\n`
+    const parentsStr = parents.length === 0 ? '' : `is ${parents.join(', ')} `
+
+    const exampleContract = `pragma solidity ${this.solcVersion};
+${importListStr}
+contract ${name} ${parentsStr}{
     constructor() public {
-        owner = msg.sender;
     }
 
     function greet() public pure returns (string) {

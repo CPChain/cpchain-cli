@@ -1,5 +1,6 @@
 import { GenerateConfig, generate } from './generate'
 import { BaseContractsBuilder } from './builder/tmpls/BaseContractsBuilder'
+import baseContracts from './types/base-contracts'
 import boxen from 'boxen'
 import prompts from 'prompts'
 import * as minimist from 'minimist'
@@ -46,6 +47,15 @@ async function _generate (argv: any) {
   config.name = argv.name || argv.n || 'example'
   config.contractName = BaseContractsBuilder.covertContractName(config.name)
 
+  const baseContractsChoices = []
+
+  for (const c of baseContracts) {
+    baseContractsChoices.push({
+      title: c.name,
+      value: c
+    })
+  }
+
   const response = await prompts([{
     type: 'text',
     name: 'name',
@@ -58,16 +68,37 @@ async function _generate (argv: any) {
     message: 'Contract Name',
     initial: config.contractName,
     validate: value => (new RegExp(contractNameRegex)).test(value) ? true : `Contract name should match ${contractNameRegex}`
+  }, {
+    type: 'multiselect',
+    name: 'needsPackages',
+    message: 'Select default packages (multi select)',
+    choices: baseContractsChoices
   }])
   if (!response) {
     return null
   }
   config.name = response.name
   config.contractName = response.contractName
+  config.needsPackages = response.needsPackages
 
   // dir
   config.dir = config.name
-  return generate(config)
+  generate(config)
+
+  // show help
+  const box = boxen(`Your project ${config.name} have been created! Please execute below commands to start:
+---
+cd ${config.name}
+npm install
+npm run test
+`, {
+    align: 'left',
+    borderStyle: 'double',
+    borderColor: 'green',
+    dimBorder: true,
+    padding: 1
+  })
+  console.log(box + '\n')
 }
 
 function main () {

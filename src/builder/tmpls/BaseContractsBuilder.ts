@@ -33,8 +33,13 @@ export class BaseContractsBuilder implements ContractTemplate {
     return this
   }
 
+  public setParents (parents: BaseContract[]) : BaseContractsBuilder {
+    this.contracts.parents = parents
+    return this
+  }
+
   public addParent (parent: BaseContract) : BaseContractsBuilder {
-    this.contracts.parent.push(parent)
+    this.contracts.parents.push(parent)
     return this
   }
 

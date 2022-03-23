@@ -64,6 +64,7 @@ module.exports = {
 function generateContracts (config: GenerateConfig) {
   new BaseContractsBuilder()
     .setContractName(config.contractName)
+    .setParents(config.needsPackages)
     .build()
     .writeTo(config.dir)
 }
