@@ -1,14 +1,18 @@
 import { PackageJsonBuiler } from './builder'
 import { BaseContractsBuilder } from './builder/tmpls/BaseContractsBuilder'
+import { BaseContract } from './types/Contracts'
 import * as fs from 'fs'
 
 export class GenerateConfig {
   name: string;
+  dir: string;
+  contractName: string
+  needsPackages: BaseContract[]
 }
 
-function generateConfig (dir: string) {
-  const configPath = `${dir}/truffle-config.js`
-  const config = `/**
+function generateConfig (config: GenerateConfig) {
+  const configPath = `${config.dir}/truffle-config.js`
+  const configContent = `/**
 * Use this file to configure your truffle project. It's seeded with some
 * common settings for different networks and features like migrations,
 * compilation and testing. Uncomment the ones you need or modify
@@ -54,19 +58,21 @@ module.exports = {
     plugins: ["solidity-coverage"]
 };
 `
-  fs.writeFileSync(configPath, config)
+  fs.writeFileSync(configPath, configContent)
 }
 
-function generateContracts (dir: string, name: string) {
+function generateContracts (config: GenerateConfig) {
   new BaseContractsBuilder()
-    .setContractName(BaseContractsBuilder.covertContractName(name))
+    .setContractName(config.contractName)
     .build()
-    .writeTo(dir)
+    .writeTo(config.dir)
 }
 
-function generatePackageJson (dir: string) {
+function generatePackageJson (config: GenerateConfig) {
   const builder = new PackageJsonBuiler()
   builder
+    // name
+    .setName(config.name)
     // scripts
     .addScript('build', 'truffle build')
     .addScript('test', 'truffle test')
@@ -80,13 +86,12 @@ function generatePackageJson (dir: string) {
     .addDependencies('@cpchain-tools/cpchain-contracts', '^0.0.3')
 
   // build and write to file
-  builder.build().writeTo(dir)
+  builder.build().writeTo(config.dir)
 }
 
-function generateREADME (dir: string, name: string) {
-  name = name[0].toUpperCase() + name.substr(1)
-  const path = `${dir}/README.md`
-  const readme = `# ${name} Contract
+function generateREADME (config: GenerateConfig) {
+  const path = `${config.dir}/README.md`
+  const readme = `# ${config.contractName} Contract
 
 ## Setup
 
@@ -103,8 +108,8 @@ truffle test
   fs.writeFileSync(path, readme)
 }
 
-function generateGitIgnore (dir: string) {
-  const path = `${dir}/.gitignore`
+function generateGitIgnore (config: GenerateConfig) {
+  const path = `${config.dir}/.gitignore`
   const gitignore = `node_modules
 coverage.json
 `
@@ -113,7 +118,7 @@ coverage.json
 
 export function generate (config: GenerateConfig) {
   // generate dirs
-  const dir = config.name
+  const dir = config.dir
   if (fs.existsSync(dir)) {
     const results = fs.readdirSync(dir)
     if (results.length > 0) {
@@ -123,9 +128,9 @@ export function generate (config: GenerateConfig) {
     fs.mkdirSync(dir)
   }
 
-  generateConfig(dir)
-  generateContracts(dir, config.name)
-  generatePackageJson(dir)
-  generateREADME(dir, config.name)
-  generateGitIgnore(dir)
+  generateConfig(config)
+  generateContracts(config)
+  generatePackageJson(config)
+  generateREADME(config)
+  generateGitIgnore(config)
 }
