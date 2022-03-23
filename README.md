@@ -103,7 +103,7 @@ npm i
 
 npm link
 
-node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts -h
+npm run ts src/index.ts -h
 
 npm run lint
 
