@@ -3,30 +3,10 @@ import { BaseContractsBuilder } from './builder/tmpls/BaseContractsBuilder'
 import baseContracts from './types/base-contracts'
 import boxen from 'boxen'
 import prompts from 'prompts'
-import * as minimist from 'minimist'
-
-function help () {
-  console.log(`Usage: cpchain-cli [generate|help] [options]
-
-Options:
-  -n, --name                        contract name
-
---
-  help, -h, --help                  print command line options
-
-    `)
-}
-
-function whichCmd (argv: { _: [string] }) {
-  return argv._.length > 0 && argv._[0]
-}
-
-function getCaller (caller: any) {
-  if (typeof caller !== 'function') {
-    return caller.default
-  }
-  return caller
-}
+import { program } from 'commander'
+import projectConfig from '../package.json'
+import chalk from 'chalk'
+import leven from 'leven'
 
 function showBox (message: string) {
   const box = boxen(message, {
@@ -39,12 +19,12 @@ function showBox (message: string) {
   console.log(box + '\n')
 }
 
-async function _generate (argv: any) {
+async function _generate (options: {name: string}) {
   const config = new GenerateConfig()
   const projectNameRegex = '^[a-z0-9_-]{1,20}$'
   const contractNameRegex = '^[A-Z][a-zA-Z0-9_]+'
 
-  config.name = argv.name || argv.n || 'example'
+  config.name = options.name || 'example'
   config.contractName = BaseContractsBuilder.covertContractName(config.name)
 
   const baseContractsChoices = []
@@ -102,19 +82,52 @@ npm run test
 }
 
 function main () {
-  const argvCall = getCaller(minimist)
-  const argv = argvCall(process.argv.slice(2))
-  const cmd = whichCmd(argv)
-
   // show box
   showBox('CPChain CLI: A scaffold for developing smart contracts on CPChain')
 
-  if (cmd === 'help') {
-    return help()
-  } else if (cmd === 'generate') {
-    return _generate(argv)
+  // program
+  program
+    .version(`cpchain-cli ${projectConfig.version}`)
+    .usage('<command> [options]')
+
+  program
+    .command('create <project-name>')
+    .description('Create a smart-contract project which can flexible developing on CPChain')
+    .allowUnknownOption()
+    .action((name, options) => {
+      options = options || {}
+      options.name = name
+      _generate(options)
+    })
+
+  // output help information on unknown commands
+  program.on('command:*', ([cmd]) => {
+    program.outputHelp()
+    console.log('  ' + chalk.red(`Unknown command ${chalk.yellow(cmd)}.`))
+    console.log()
+    suggestCommands(cmd)
+    process.exitCode = 1
+  })
+
+  program.parse(process.argv)
+
+  function suggestCommands (unknownCommand) {
+    const availableCommands = program.commands.map(cmd => cmd.name())
+
+    let suggestion
+
+    availableCommands.forEach(cmd => {
+      // 距离向量算法推测可能的命令
+      const isBestMatch = leven(cmd, unknownCommand) < leven(suggestion || '', unknownCommand)
+      if (leven(cmd, unknownCommand) < 3 && isBestMatch) {
+        suggestion = cmd
+      }
+    })
+
+    if (suggestion) {
+      console.log('  ' + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`))
+    }
   }
-  help()
 }
 
 main()
