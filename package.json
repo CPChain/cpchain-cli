@@ -49,6 +49,7 @@
     "boxen": "^6.2.1",
     "chalk": "^5.0.1",
     "commander": "^9.1.0",
+    "cpchain-typescript-sdk": "^0.0.2",
     "leven": "^4.0.0",
     "prompts": "^2.4.2",
     "ts-node": "^10.7.0"

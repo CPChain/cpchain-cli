@@ -1,6 +1,7 @@
 import { GenerateConfig, generate } from './generate'
 import { BaseContractsBuilder } from './builder/tmpls/BaseContractsBuilder'
 import baseContracts from './types/base-contracts'
+import account from './account'
 import boxen from 'boxen'
 import prompts from 'prompts'
 import { program } from 'commander'
@@ -99,6 +100,9 @@ function main () {
       options.name = name
       _generate(options)
     })
+
+  // Account management
+  account.loadCommands(program)
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {
