@@ -4,6 +4,20 @@ import { Command } from 'commander'
 import { createInterface } from 'readline'
 import { Writable } from 'stream'
 import fs from 'fs'
+import path from 'path'
+
+const defaultOutputDir = `${process.cwd()}/keystore`
+
+// 至少一个字母、至少一个数字、至少一个特殊字符
+const regexPassword = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
+const passwordInputHint =
+  'Password must contain at least 8 characters, one uppercase letter or ' +
+  'one lowercase letter, one number and one special character'
+
+interface Options {
+  outputDir: string
+  unsafe: boolean
+}
 
 export default {
   loadCommands (program: Command) {
@@ -13,12 +27,13 @@ export default {
     accountCommand
       .command('new')
       .description('Create a new account')
-      .allowUnknownOption()
-      .action(() => {
-        this.create()
+      .option('-o, --output-dir <dir>', 'Output directory', defaultOutputDir)
+      .option('--unsafe', 'Do not validate password (Please only use it when test!)', false)
+      .action((options: Options) => {
+        this.create(options)
       })
   },
-  create () {
+  create (options: Options) {
     console.log(kleur.bold().yellow('You are creating a new wallet on your disk! Please make sure your computer is safe!'))
     console.log(kleur.gray('------'))
 
@@ -36,9 +51,20 @@ export default {
     })
 
     new Promise(resolve => {
-      process.stdout.write(kleur.green('Please input your password: '))
+      let hint = kleur.green('Please input your password')
+      if (!options.unsafe) {
+        hint += kleur.gray(`(${passwordInputHint})`)
+      }
+      hint += kleur.green(': ')
+      process.stdout.write(hint)
       rl.question('pwd1', (pwd) => {
         console.log()
+        if (!options.unsafe) {
+          if (!regexPassword.test(pwd)) {
+            console.log(kleur.red('Password is not valid!'))
+            process.exit(1)
+          }
+        }
         resolve(pwd)
       })
     }).then(pwd => {
@@ -60,9 +86,10 @@ export default {
         keystore: await wallet.encrypt(pwd)
       }
     }).then(({ address, keystore }) => {
-      const outputDir = `${process.cwd()}/keystore`
+      const outputDir = path.join(process.cwd(), options.outputDir)
       const filePath = `${outputDir}/${address}.json`
       if (!fs.existsSync(outputDir)) {
+        console.log(kleur.yellow(`Output directory ${outputDir} not exists, create it now!`))
         fs.mkdirSync(outputDir)
       }
       fs.writeFileSync(filePath, keystore)

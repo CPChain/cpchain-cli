@@ -94,7 +94,6 @@ function main () {
   program
     .command('create <project-name>')
     .description('Create a smart-contract project which can flexible developing on CPChain')
-    .allowUnknownOption()
     .action((name, options) => {
       options = options || {}
       options.name = name
