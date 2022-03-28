@@ -86,7 +86,10 @@ export default {
         keystore: await wallet.encrypt(pwd)
       }
     }).then(({ address, keystore }) => {
-      const outputDir = path.join(process.cwd(), options.outputDir)
+      let outputDir = options.outputDir
+      if (!path.isAbsolute(outputDir)) {
+        outputDir = path.join(process.cwd(), options.outputDir)
+      }
       const filePath = `${outputDir}/${address}.json`
       if (!fs.existsSync(outputDir)) {
         console.log(kleur.yellow(`Output directory ${outputDir} not exists, create it now!`))
