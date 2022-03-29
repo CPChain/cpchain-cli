@@ -7,7 +7,8 @@ interface Options {
   password: string,
   builtContract: string,
   endpoint: string,
-  chainID: number
+  chainID: number,
+  argv: string[]
 }
 
 export default {
@@ -23,6 +24,7 @@ export default {
       .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
       .requiredOption('--endpoint <url>', 'Endpoint of the blockchain')
       .requiredOption('--chainID <id>', 'Chain ID of the blockchain')
+      .option('-a, --argv [argv...]', 'Arguments of the contract\'s constructor')
       .action((options: any) => {
         this.deploy(options)
       })
@@ -67,7 +69,7 @@ export default {
     const account = wallet.connect(provider)
 
     const contractFactory = new cpchain.contract.ContractFactory(contractJson.abi, contractJson.bytecode, account)
-    const myContract = await contractFactory.deploy()
+    const myContract = await contractFactory.deploy(...options.argv)
 
     await myContract.deployTransaction.wait()
     utils.info(`Contract address is ${myContract.address}`)
