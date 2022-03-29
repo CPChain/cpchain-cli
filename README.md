@@ -10,9 +10,9 @@ npm install -g cpchain-cli
 
 cpchain-cli help
 
-cpchain-cli generate -n MyContract
+cpchain-cli create my-contract
 
-cd MyContract
+cd my-contract
 
 # Test contract
 truffle test

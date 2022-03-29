@@ -8,6 +8,7 @@ import { program } from 'commander'
 import projectConfig from '../package.json'
 import chalk from 'chalk'
 import leven from 'leven'
+import contract from './contract'
 
 function showBox (message: string) {
   const box = boxen(message, {
@@ -102,6 +103,9 @@ function main () {
 
   // Account management
   account.loadCommands(program)
+
+  // Contract management
+  contract.loadCommand(program)
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {
