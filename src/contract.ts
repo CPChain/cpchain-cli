@@ -8,7 +8,16 @@ interface Options {
   builtContract: string,
   endpoint: string,
   chainID: number,
-  argv: string[]
+  parameters: string[]
+}
+
+interface ViewMethodOptions {
+  methodName: string,
+  builtContract: string,
+  contractAddress: string,
+  endpoint: string,
+  chainID: number,
+  parameters: string[]
 }
 
 export default {
@@ -24,9 +33,21 @@ export default {
       .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
       .requiredOption('--endpoint <url>', 'Endpoint of the blockchain')
       .requiredOption('--chainID <id>', 'Chain ID of the blockchain')
-      .option('-a, --argv [argv...]', 'Arguments of the contract\'s constructor')
+      .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
       .action((options: any) => {
         this.deploy(options)
+      })
+    contractCommand
+      .command('view')
+      .description('Call a view method a smart contract')
+      .requiredOption('-m --method-name <name>', 'Name of the view method')
+      .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
+      .requiredOption('--contract-address <address>', 'Address of the contract')
+      .option('--endpoint <url>', 'Endpoint of the blockchain', 'https://civilian.testnet.cpchain.io')
+      .option('--chainID <id>', 'Chain ID of the blockchain', '41')
+      .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
+      .action((options: any) => {
+        this.callViewMethod(options)
       })
   },
   async deploy (options: Options) {
@@ -69,9 +90,25 @@ export default {
     const account = wallet.connect(provider)
 
     const contractFactory = new cpchain.contract.ContractFactory(contractJson.abi, contractJson.bytecode, account)
-    const myContract = await contractFactory.deploy(...options.argv)
+    const myContract = await contractFactory.deploy(...options.parameters)
 
     await myContract.deployTransaction.wait()
     utils.info(`Contract address is ${myContract.address}`)
+  },
+  async callViewMethod (options: ViewMethodOptions) {
+    const builtContract = await utils.readFile(options.builtContract)
+    const contractJson = JSON.parse(builtContract)
+    if (contractJson.abi === undefined || contractJson.contractName === undefined) {
+      utils.fatal('Invalid contract file: missing abi, bytecode or contractName')
+    }
+    utils.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
+    options.chainID = Number(options.chainID)
+    const provider = cpchain.providers.createJsonRpcProvider(options.endpoint, options.chainID)
+    const myContract = new cpchain.contract.Contract(options.contractAddress, contractJson.abi, provider)
+    if (!myContract[options.methodName]) {
+      utils.fatal(`Method ${options.methodName} not found`)
+    }
+    const r = await myContract[options.methodName](...options.parameters)
+    console.log(r)
   }
 }
