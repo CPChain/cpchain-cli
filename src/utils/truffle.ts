@@ -42,15 +42,17 @@ class Deployer {
     this.signer = signer
   }
 
-  async deploy (contractModule: Promise<Artifact>, ...args: any[]) {
+  async deploy (contractModule: Promise<Artifact>, ...args: any[]): Promise<any> {
     const artifact = await contractModule
     logger.info(`Deploying ${artifact.contractName} contract...`)
 
     const contractFactory = new cpc.contract.ContractFactory(artifact.abi, artifact.bytecode, this.signer)
+    console.log(...args)
     const myContract = await contractFactory.deploy(...args)
 
     await myContract.deployTransaction.wait()
     logger.info(`Contract ${artifact.contractName} address is ${myContract.address}`)
+    return myContract
   }
 }
 
