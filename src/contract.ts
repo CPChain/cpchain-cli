@@ -1,6 +1,10 @@
 import { Command } from 'commander'
 import utils from './utils'
-import cpchain from 'cpchain-typescript-sdk'
+import cpc from 'cpchain-typescript-sdk'
+
+const contract = cpc.contract
+const providers = cpc.providers
+const wallets = cpc.wallets
 
 interface Options {
   keystore: string,
@@ -18,6 +22,12 @@ interface ViewMethodOptions {
   endpoint: string,
   chainID: number,
   parameters: string[]
+}
+
+interface CallMethodOptions extends ViewMethodOptions {
+  amount: string,
+  keystore: string,
+  password: string,
 }
 
 export default {
@@ -47,7 +57,24 @@ export default {
       .option('--chainID <id>', 'Chain ID of the blockchain', '41')
       .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
       .action((options: any) => {
+        options.parameters = options.parameters || []
         this.callViewMethod(options)
+      })
+    contractCommand
+      .command('call')
+      .description('Call a method a smart contract')
+      .requiredOption('-k, --keystore <path>', 'Path of keystore file')
+      .option('-p, --password <pwd>', 'Password of keystore file')
+      .requiredOption('-m --method-name <name>', 'Name of the method')
+      .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
+      .requiredOption('--contract-address <address>', 'Address of the contract')
+      .option('--endpoint <url>', 'Endpoint of the blockchain', 'https://civilian.testnet.cpchain.io')
+      .option('--chainID <id>', 'Chain ID of the blockchain', '41')
+      .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
+      .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
+      .action((options: any) => {
+        options.parameters = options.parameters || []
+        this.callMethod(options)
       })
   },
   async deploy (options: Options) {
@@ -74,7 +101,7 @@ export default {
     }
     options.password = options.password.trim()
     const keystore = await utils.readFile(options.keystore)
-    const wallet = await cpchain.wallets.fromEncryptedJson(keystore, options.password)
+    const wallet = await wallets.fromEncryptedJson(keystore, options.password)
     utils.info(`You wallet's address is ${wallet.address}`)
     const builtContract = await utils.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
@@ -86,16 +113,16 @@ export default {
 
     utils.info(`Deploying ${contractJson.contractName} contract...`)
 
-    const provider = cpchain.providers.createJsonRpcProvider(options.endpoint, options.chainID)
+    const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
     const account = wallet.connect(provider)
 
-    const contractFactory = new cpchain.contract.ContractFactory(contractJson.abi, contractJson.bytecode, account)
+    const contractFactory = new contract.ContractFactory(contractJson.abi, contractJson.bytecode, account)
     const myContract = await contractFactory.deploy(...options.parameters)
 
     await myContract.deployTransaction.wait()
     utils.info(`Contract address is ${myContract.address}`)
   },
-  async callViewMethod (options: ViewMethodOptions) {
+  async getContract (options: ViewMethodOptions) : Promise<any> {
     const builtContract = await utils.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
     if (contractJson.abi === undefined || contractJson.contractName === undefined) {
@@ -103,12 +130,52 @@ export default {
     }
     utils.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
     options.chainID = Number(options.chainID)
-    const provider = cpchain.providers.createJsonRpcProvider(options.endpoint, options.chainID)
-    const myContract = new cpchain.contract.Contract(options.contractAddress, contractJson.abi, provider)
+    const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
+    const myContract = new contract.Contract(options.contractAddress, contractJson.abi, provider)
+    return myContract
+  },
+  async getContractWithSigner (options: CallMethodOptions): Promise <any> {
+    const builtContract = await utils.readFile(options.builtContract)
+    const contractJson = JSON.parse(builtContract)
+    if (contractJson.abi === undefined || contractJson.contractName === undefined) {
+      utils.fatal('Invalid contract file: missing abi, bytecode or contractName')
+    }
+    utils.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
+    options.chainID = Number(options.chainID)
+    const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
+    // check or require-input password
+    if (!options.password) {
+      options.password = await utils.inputPwdWithValidator((pwd: string) => {
+        return pwd.length > 0 || 'Password is empty'
+      })
+    } else {
+      utils.warn('Password is not empty, but this is unsecure when show in the console')
+    }
+    options.password = options.password.trim()
+    const keystore = await utils.readFile(options.keystore)
+    const wallet = await wallets.fromEncryptedJson(keystore, options.password)
+    const account = wallet.connect(provider)
+    const myContract = new contract.Contract(options.contractAddress, contractJson.abi, account)
+    return myContract
+  },
+  async callViewMethod (options: ViewMethodOptions) {
+    const myContract = await this.getContract(options)
     if (!myContract[options.methodName]) {
       utils.fatal(`Method ${options.methodName} not found`)
     }
     const r = await myContract[options.methodName](...options.parameters)
     console.log(r)
+  },
+  async callMethod (options: CallMethodOptions) {
+    const myContract = await this.getContractWithSigner(options)
+    if (!myContract[options.methodName]) {
+      utils.fatal(`Method ${options.methodName} not found`)
+    }
+    const tx = await myContract[options.methodName](...options.parameters, {
+      value: cpc.utils.parseCPC(options.amount)
+    })
+    utils.info(`Transaction hash is ${tx.hash}, please wait for confirmation...`)
+    await tx.wait()
+    utils.info(`Transaction ${tx.hash} has been sent`)
   }
 }
