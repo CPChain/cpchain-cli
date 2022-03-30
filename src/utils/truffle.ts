@@ -47,7 +47,6 @@ class Deployer {
     logger.info(`Deploying ${artifact.contractName} contract...`)
 
     const contractFactory = new cpc.contract.ContractFactory(artifact.abi, artifact.bytecode, this.signer)
-    console.log(...args)
     const myContract = await contractFactory.deploy(...args)
 
     await myContract.deployTransaction.wait()

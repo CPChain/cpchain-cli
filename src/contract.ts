@@ -246,9 +246,10 @@ export default {
       utils.logger.fatal('Project should be a directory, but got a file')
     }
     // check if migrations/2_deploy_contracts.js exists
-    if (!(await utils.loader.fileExists(path.join(options.project, 'migrations', '2_deploy_contracts.js')))) {
+    const target = path.join(options.project, 'migrations', '2_deploy_contracts.js')
+    if (!(await utils.loader.fileExists(target))) {
       utils.logger.fatal(`2_deploy_contracts.js not found in ${options.project}/migrations directory`)
     }
-    await utils.truffle.loadMigration('example/migrations/2_deploy_contracts.js', signer)
+    await utils.truffle.loadMigration(target, signer)
   }
 }

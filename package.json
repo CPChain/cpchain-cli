@@ -1,6 +1,6 @@
 {
   "name": "cpchain-cli",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "A CLI tool for developing smart contracts on CPChain mainnet",
   "main": "src/index.ts",
   "type": "module",
