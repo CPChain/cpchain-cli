@@ -13,5 +13,5 @@ export default {
   },
   info (msg: string) {
     console.log(kleur.cyan(msg))
-  },
+  }
 }

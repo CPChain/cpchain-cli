@@ -49,7 +49,7 @@ function addContractOptions ({ command, method, contractAddress }:
 async function validateChain (options: Options) {
   // check chainID
   if (!options.chainID) {
-    utils.fatal('Chain ID is required')
+    utils.logger.fatal('Chain ID is required')
   }
   options.chainID = Number(options.chainID)
 }
@@ -57,11 +57,11 @@ async function validateChain (options: Options) {
 async function validateWallet (options: Options) {
   // check if keystore file exists
   if (!(await utils.loader.fileExists(options.keystore))) {
-    utils.fatal(`Keystore file "${options.keystore}" not found`)
+    utils.logger.fatal(`Keystore file "${options.keystore}" not found`)
   }
   // check if contract file exists
   if (!(await utils.loader.fileExists(options.builtContract))) {
-    utils.fatal(`Contract file "${options.builtContract}" not found`)
+    utils.logger.fatal(`Contract file "${options.builtContract}" not found`)
   }
 }
 
@@ -72,7 +72,7 @@ async function getAccount (options: Options): Promise<CPCWallet> {
       return pwd.length > 0 || 'Password is empty'
     })
   } else {
-    utils.warn('Password is not empty, but this is unsecure when show in the console')
+    utils.logger.warn('Password is not empty, but this is unsecure when show in the console')
   }
   options.password = options.password.trim()
   const keystore = await utils.loader.readFile(options.keystore)
@@ -132,15 +132,15 @@ export default {
   async deploy (options: Options) {
     // check if keystore file exists
     if (!(await utils.loader.fileExists(options.keystore))) {
-      utils.fatal(`Keystore file "${options.keystore}" not found`)
+      utils.logger.fatal(`Keystore file "${options.keystore}" not found`)
     }
     // check if contract file exists
     if (!(await utils.loader.fileExists(options.builtContract))) {
-      utils.fatal(`Contract file "${options.builtContract}" not found`)
+      utils.logger.fatal(`Contract file "${options.builtContract}" not found`)
     }
     // check chainID
     if (!options.chainID) {
-      utils.fatal('Chain ID is required')
+      utils.logger.fatal('Chain ID is required')
     }
     options.chainID = Number(options.chainID)
     // check or require-input password
@@ -149,21 +149,21 @@ export default {
         return pwd.length > 0 || 'Password is empty'
       })
     } else {
-      utils.warn('Password is not empty, but this is unsecure when show in the console')
+      utils.logger.warn('Password is not empty, but this is unsecure when show in the console')
     }
     options.password = options.password.trim()
     const keystore = await utils.loader.readFile(options.keystore)
     const wallet = await wallets.fromEncryptedJson(keystore, options.password)
-    utils.info(`You wallet's address is ${wallet.address}`)
+    utils.logger.info(`You wallet's address is ${wallet.address}`)
     const builtContract = await utils.loader.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
 
     // validate contract json
     if (contractJson.abi === undefined || contractJson.bytecode === undefined || contractJson.contractName === undefined) {
-      utils.fatal('Invalid contract file: missing abi, bytecode or contractName')
+      utils.logger.fatal('Invalid contract file: missing abi, bytecode or contractName')
     }
 
-    utils.info(`Deploying ${contractJson.contractName} contract...`)
+    utils.logger.info(`Deploying ${contractJson.contractName} contract...`)
 
     const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
     const account = wallet.connect(provider)
@@ -172,15 +172,15 @@ export default {
     const myContract = await contractFactory.deploy(...options.parameters)
 
     await myContract.deployTransaction.wait()
-    utils.info(`Contract address is ${myContract.address}`)
+    utils.logger.info(`Contract address is ${myContract.address}`)
   },
   async getContract (options: Options) : Promise<any> {
     const builtContract = await utils.loader.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
     if (contractJson.abi === undefined || contractJson.contractName === undefined) {
-      utils.fatal('Invalid contract file: missing abi, bytecode or contractName')
+      utils.logger.fatal('Invalid contract file: missing abi, bytecode or contractName')
     }
-    utils.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
+    utils.logger.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
     options.chainID = Number(options.chainID)
     const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
     const myContract = new contract.Contract(options.contractAddress, contractJson.abi, provider)
@@ -190,9 +190,9 @@ export default {
     const builtContract = await utils.loader.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
     if (contractJson.abi === undefined || contractJson.contractName === undefined) {
-      utils.fatal('Invalid contract file: missing abi, bytecode or contractName')
+      utils.logger.fatal('Invalid contract file: missing abi, bytecode or contractName')
     }
-    utils.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
+    utils.logger.info(`Calling ${options.methodName} method of ${contractJson.contractName} contract...`)
     options.chainID = Number(options.chainID)
     const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
     // check or require-input password
@@ -201,7 +201,7 @@ export default {
         return pwd.length > 0 || 'Password is empty'
       })
     } else {
-      utils.warn('Password is not empty, but this is unsecure when show in the console')
+      utils.logger.warn('Password is not empty, but this is unsecure when show in the console')
     }
     options.password = options.password.trim()
     const keystore = await utils.loader.readFile(options.keystore)
@@ -213,7 +213,7 @@ export default {
   async callViewMethod (options: Options) {
     const myContract = await this.getContract(options)
     if (!myContract[options.methodName]) {
-      utils.fatal(`Method ${options.methodName} not found`)
+      utils.logger.fatal(`Method ${options.methodName} not found`)
     }
     const r = await myContract[options.methodName](...options.parameters)
     console.log(r)
@@ -221,14 +221,14 @@ export default {
   async callMethod (options: Options) {
     const myContract = await this.getContractWithSigner(options)
     if (!myContract[options.methodName]) {
-      utils.fatal(`Method ${options.methodName} not found`)
+      utils.logger.fatal(`Method ${options.methodName} not found`)
     }
     const tx = await myContract[options.methodName](...options.parameters, {
       value: cpc.utils.parseCPC(options.amount)
     })
-    utils.info(`Transaction hash is ${tx.hash}, please wait for confirmation...`)
+    utils.logger.info(`Transaction hash is ${tx.hash}, please wait for confirmation...`)
     await tx.wait()
-    utils.info(`Transaction ${tx.hash} has been sent`)
+    utils.logger.info(`Transaction ${tx.hash} has been sent`)
   },
   async truffleDeploy (options: Options) {
     await validateWallet(options)

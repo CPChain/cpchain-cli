@@ -4,6 +4,7 @@ import kleur from 'kleur'
 import fs from 'fs'
 import loader from './loader'
 import truffle from './truffle'
+import logger from './logger'
 
 // 至少一个字母、至少一个数字、至少一个特殊字符
 const regexPassword = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
@@ -45,19 +46,6 @@ export default {
       })
     })
   },
-  fatal (msg: string) {
-    this.error(msg)
-    process.exit(1)
-  },
-  error (msg: string) {
-    console.error(kleur.red(msg))
-  },
-  warn (msg: string) {
-    console.log(kleur.yellow(msg))
-  },
-  info (msg: string) {
-    console.log(kleur.cyan(msg))
-  },
   readKeystore (keystorePath: string): Promise<object> {
     return new Promise((resolve, reject) => {
       fs.readFile(keystorePath, 'utf8', (err, data) => {
@@ -71,5 +59,6 @@ export default {
     })
   },
   loader,
-  truffle
+  truffle,
+  logger
 }
