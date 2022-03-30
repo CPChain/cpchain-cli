@@ -7,27 +7,42 @@ const providers = cpc.providers
 const wallets = cpc.wallets
 
 interface Options {
-  keystore: string,
-  password: string,
-  builtContract: string,
   endpoint: string,
   chainID: number,
-  parameters: string[]
-}
-
-interface ViewMethodOptions {
+  keystore: string,
+  password: string,
   methodName: string,
   builtContract: string,
   contractAddress: string,
-  endpoint: string,
-  chainID: number,
   parameters: string[]
+  amount: string
 }
 
-interface CallMethodOptions extends ViewMethodOptions {
-  amount: string,
-  keystore: string,
-  password: string,
+function addChainOptions (command: Command) {
+  command
+    .option('--endpoint <url>', 'Endpoint of the blockchain', 'https://civilian.testnet.cpchain.io')
+    .option('--chainID <id>', 'Chain ID of the blockchain', '41')
+  return command
+}
+
+function addWalletOptions (command: Command) {
+  command.requiredOption('-k, --keystore <path>', 'Path of keystore file')
+    .option('-p, --password <pwd>', 'Password of keystore file')
+  return command
+}
+
+function addContractOptions ({ command, method, contractAddress }:
+  { command: Command, method: boolean, contractAddress: boolean }) {
+  command.requiredOption('-c, --built-contract <path>', 'Path of built contract file')
+    .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
+    .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
+  if (method) {
+    command.requiredOption('-m --method-name <name>', 'Name of the method')
+  }
+  if (contractAddress) {
+    command.requiredOption('--contract-address <address>', 'Address of the contract')
+  }
+  return command
 }
 
 export default {
@@ -35,47 +50,38 @@ export default {
     const contractCommand = program
       .command('contract')
       .description('Smart contracts management')
-    contractCommand
+    // Deploy Comander
+    const deployCommand = contractCommand
       .command('deploy')
       .description('Deploy a smart contract')
-      .requiredOption('-k, --keystore <path>', 'Path of keystore file')
-      .option('-p, --password <pwd>', 'Password of keystore file')
-      .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
-      .requiredOption('--endpoint <url>', 'Endpoint of the blockchain')
-      .requiredOption('--chainID <id>', 'Chain ID of the blockchain')
-      .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
+    addChainOptions(deployCommand)
+    addWalletOptions(deployCommand)
+    addContractOptions({ command: deployCommand, method: false, contractAddress: false })
+    deployCommand
       .action((options: any) => {
         this.deploy(options)
       })
-    contractCommand
+    // View Commander
+    const viewCommaner = contractCommand
       .command('view')
       .description('Call a view method a smart contract')
-      .requiredOption('-m --method-name <name>', 'Name of the view method')
-      .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
-      .requiredOption('--contract-address <address>', 'Address of the contract')
-      .option('--endpoint <url>', 'Endpoint of the blockchain', 'https://civilian.testnet.cpchain.io')
-      .option('--chainID <id>', 'Chain ID of the blockchain', '41')
-      .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
-      .action((options: any) => {
-        options.parameters = options.parameters || []
-        this.callViewMethod(options)
-      })
-    contractCommand
+    addChainOptions(viewCommaner)
+    addContractOptions({ command: viewCommaner, method: true, contractAddress: true })
+    viewCommaner.action((options: any) => {
+      options.parameters = options.parameters || []
+      this.callViewMethod(options)
+    })
+    // Call commander
+    const callCommaner = contractCommand
       .command('call')
       .description('Call a method a smart contract')
-      .requiredOption('-k, --keystore <path>', 'Path of keystore file')
-      .option('-p, --password <pwd>', 'Password of keystore file')
-      .requiredOption('-m --method-name <name>', 'Name of the method')
-      .requiredOption('-c, --built-contract <path>', 'Path of built contract file')
-      .requiredOption('--contract-address <address>', 'Address of the contract')
-      .option('--endpoint <url>', 'Endpoint of the blockchain', 'https://civilian.testnet.cpchain.io')
-      .option('--chainID <id>', 'Chain ID of the blockchain', '41')
-      .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
-      .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
-      .action((options: any) => {
-        options.parameters = options.parameters || []
-        this.callMethod(options)
-      })
+    addChainOptions(callCommaner)
+    addWalletOptions(callCommaner)
+    addContractOptions({ command: callCommaner, method: true, contractAddress: true })
+    callCommaner.action((options: any) => {
+      options.parameters = options.parameters || []
+      this.callMethod(options)
+    })
   },
   async deploy (options: Options) {
     // check if keystore file exists
@@ -122,7 +128,7 @@ export default {
     await myContract.deployTransaction.wait()
     utils.info(`Contract address is ${myContract.address}`)
   },
-  async getContract (options: ViewMethodOptions) : Promise<any> {
+  async getContract (options: Options) : Promise<any> {
     const builtContract = await utils.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
     if (contractJson.abi === undefined || contractJson.contractName === undefined) {
@@ -134,7 +140,7 @@ export default {
     const myContract = new contract.Contract(options.contractAddress, contractJson.abi, provider)
     return myContract
   },
-  async getContractWithSigner (options: CallMethodOptions): Promise <any> {
+  async getContractWithSigner (options: Options): Promise <any> {
     const builtContract = await utils.readFile(options.builtContract)
     const contractJson = JSON.parse(builtContract)
     if (contractJson.abi === undefined || contractJson.contractName === undefined) {
@@ -158,7 +164,7 @@ export default {
     const myContract = new contract.Contract(options.contractAddress, contractJson.abi, account)
     return myContract
   },
-  async callViewMethod (options: ViewMethodOptions) {
+  async callViewMethod (options: Options) {
     const myContract = await this.getContract(options)
     if (!myContract[options.methodName]) {
       utils.fatal(`Method ${options.methodName} not found`)
@@ -166,7 +172,7 @@ export default {
     const r = await myContract[options.methodName](...options.parameters)
     console.log(r)
   },
-  async callMethod (options: CallMethodOptions) {
+  async callMethod (options: Options) {
     const myContract = await this.getContractWithSigner(options)
     if (!myContract[options.methodName]) {
       utils.fatal(`Method ${options.methodName} not found`)
