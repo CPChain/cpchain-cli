@@ -2,6 +2,8 @@ import { createInterface } from 'readline'
 import { Writable } from 'stream'
 import kleur from 'kleur'
 import fs from 'fs'
+import loader from './loader'
+import truffle from './truffle'
 
 // 至少一个字母、至少一个数字、至少一个特殊字符
 const regexPassword = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
@@ -43,9 +45,6 @@ export default {
       })
     })
   },
-  fileExists (filePath: string): Promise<boolean> {
-    return Promise.resolve(fs.existsSync(filePath))
-  },
   fatal (msg: string) {
     this.error(msg)
     process.exit(1)
@@ -59,17 +58,6 @@ export default {
   info (msg: string) {
     console.log(kleur.cyan(msg))
   },
-  readFile (filePath: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(data)
-        }
-      })
-    })
-  },
   readKeystore (keystorePath: string): Promise<object> {
     return new Promise((resolve, reject) => {
       fs.readFile(keystorePath, 'utf8', (err, data) => {
@@ -81,5 +69,7 @@ export default {
         }
       })
     })
-  }
+  },
+  loader,
+  truffle
 }
