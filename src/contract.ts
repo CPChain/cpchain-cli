@@ -2,6 +2,7 @@ import { Command } from 'commander'
 import utils from './utils'
 import cpc from 'cpchain-typescript-sdk'
 import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
+import path from 'path'
 
 const contract = cpc.contract
 const providers = cpc.providers
@@ -16,7 +17,8 @@ interface Options {
   builtContract: string,
   contractAddress: string,
   parameters: string[]
-  amount: string
+  amount: string,
+  project: string
 }
 
 function addChainOptions (command: Command) {
@@ -32,9 +34,9 @@ function addWalletOptions (command: Command) {
   return command
 }
 
-function addContractOptions ({ command, method, contractAddress }:
-  { command: Command, method: boolean, contractAddress: boolean }) {
-  command.requiredOption('-c, --built-contract <path>', 'Path of built contract file')
+function addContractOptions ({ command, method, contractAddress, builtContract }:
+  { command: Command, method: boolean, contractAddress: boolean, builtContract: boolean }) {
+  command
     .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
     .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
   if (method) {
@@ -42,6 +44,9 @@ function addContractOptions ({ command, method, contractAddress }:
   }
   if (contractAddress) {
     command.requiredOption('--contract-address <address>', 'Address of the contract')
+  }
+  if (builtContract) {
+    command.requiredOption('-c, --built-contract <path>', 'Path of built contract file')
   }
   return command
 }
@@ -58,10 +63,6 @@ async function validateWallet (options: Options) {
   // check if keystore file exists
   if (!(await utils.loader.fileExists(options.keystore))) {
     utils.logger.fatal(`Keystore file "${options.keystore}" not found`)
-  }
-  // check if contract file exists
-  if (!(await utils.loader.fileExists(options.builtContract))) {
-    utils.logger.fatal(`Contract file "${options.builtContract}" not found`)
   }
 }
 
@@ -93,7 +94,7 @@ export default {
       .description('Deploy a smart contract')
     addChainOptions(deployCommand)
     addWalletOptions(deployCommand)
-    addContractOptions({ command: deployCommand, method: false, contractAddress: false })
+    addContractOptions({ command: deployCommand, method: false, contractAddress: false, builtContract: true })
     deployCommand
       .action((options: any) => {
         this.deploy(options)
@@ -103,7 +104,7 @@ export default {
       .command('view')
       .description('Call a view method a smart contract')
     addChainOptions(viewCommaner)
-    addContractOptions({ command: viewCommaner, method: true, contractAddress: true })
+    addContractOptions({ command: viewCommaner, method: true, contractAddress: true, builtContract: true })
     viewCommaner.action((options: any) => {
       options.parameters = options.parameters || []
       this.callViewMethod(options)
@@ -114,7 +115,7 @@ export default {
       .description('Call a method a smart contract')
     addChainOptions(callCommaner)
     addWalletOptions(callCommaner)
-    addContractOptions({ command: callCommaner, method: true, contractAddress: true })
+    addContractOptions({ command: callCommaner, method: true, contractAddress: true, builtContract: true })
     callCommaner.action((options: any) => {
       options.parameters = options.parameters || []
       this.callMethod(options)
@@ -122,9 +123,10 @@ export default {
     // Deploy truffle project
     const truffleCommand = contractCommand.command('deploy-truffle')
       .description('Deploy a truffle project')
+      .option('-P, --project <path>', 'Path of truffle project, default is current floder', '.')
     addChainOptions(truffleCommand)
     addWalletOptions(truffleCommand)
-    addContractOptions({ command: truffleCommand, method: false, contractAddress: false })
+    addContractOptions({ command: truffleCommand, method: false, contractAddress: false, builtContract: false })
     truffleCommand.action((options: any) => {
       this.truffleDeploy(options)
     })
@@ -234,6 +236,19 @@ export default {
     await validateWallet(options)
     await validateChain(options)
     const signer = await getAccount(options)
+    if (!utils.loader.fileExists(options.project)) {
+      utils.logger.fatal('Project not exists')
+    }
+    if (options.project === '.') {
+      options.project = process.cwd()
+    }
+    if (!utils.loader.isDirectory(options.project)) {
+      utils.logger.fatal('Project should be a directory, but got a file')
+    }
+    // check if migrations/2_deploy_contracts.js exists
+    if (!(await utils.loader.fileExists(path.join(options.project, 'migrations', '2_deploy_contracts.js')))) {
+      utils.logger.fatal(`2_deploy_contracts.js not found in ${options.project}/migrations directory`)
+    }
     await utils.truffle.loadMigration('example/migrations/2_deploy_contracts.js', signer)
   }
 }
