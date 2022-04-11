@@ -4,6 +4,8 @@
 
 This tool aim to help developer develop smart contract on CPChain mainnet.
 
+![demo](./assets/demo1.gif)
+
 ## Usage
 
 ```bash
