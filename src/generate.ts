@@ -1,6 +1,7 @@
 import { PackageJsonBuiler } from './builder'
 import { BaseContractsBuilder } from './builder/tmpls/BaseContractsBuilder'
 import { BaseContract } from './types/Contracts'
+import { generateEditorConfig } from './editorconfig'
 import * as fs from 'fs'
 
 export class GenerateConfig {
@@ -134,4 +135,5 @@ export function generate (config: GenerateConfig) {
   generatePackageJson(config)
   generateREADME(config)
   generateGitIgnore(config)
+  generateEditorConfig(config)
 }
