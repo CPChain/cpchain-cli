@@ -1,5 +1,7 @@
 # CPChain CLI Tools
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 This tool aim to help developer develop smart contract on CPChain mainnet.
 
 ## Usage
@@ -14,8 +16,10 @@ cpchain-cli create my-contract
 
 cd my-contract
 
+yarn
+
 # Test contract
-truffle test
+npx truffle test
 
 ```
 
@@ -29,15 +33,16 @@ Before deploying contract on the mainnet, we suggest developers the smart contra
 
 ### Create account
 
+You can use the cpchain-cli create a account directly.
+
 ```bash
 
-# install tools
-pip3 install cpc-fusion
-
 # create a new account
-cpc-fusion account create
+cpchain-cli account new
 
 ```
+
+You can check your keystore in `keystore` folder. You can execute `cpchain-cli account new -h` to get detailed parameters.
 
 ### Deploy
 
@@ -49,55 +54,47 @@ Now, copy your address and access [faucet](https://testnet.cpchain.io/#/faucet) 
 npm run build
 
 # deploy on testnet (Specify your keystore)
-cpc-fusion deploy --keystore <The path of your keystore>  --abi build/contracts/MyContract.json --endpoint https://civilian.testnet.cpchain.io --chainID 41
+cpchain-cli contract deploy --keystore <The path of your keystore>  -c build/contracts/MyContract.json --endpoint https://civilian.testnet.cpchain.io --chainID 41
 
+# if need deploy multiple contracts which writes in migrations, you can use deploy-truffle command
+cpchain-cli contract deploy-truffle --keystore <The path of your keystore> --endpoint https://civilian.testnet.cpchain.io --chainID 41 -P <Project Path>
 
 ```
 
 ### Manage Contract by Command-Line
 
-After deploying your contract, you will need to manage it. The cpc-fusion can also support managing deployed contract. Please run as below to get all commands:
+After deploying your contract, you will need to manage it. The cpchain-cli can also support managing deployed contract. Please run as below to get all commands:
 
 ```bash
 
-cpc-fusion -h
+cpchain-cli contract -h
 
 ```
 
-If you want to check all configurations, you can use `cpc-fusion get-configs -h`, for example:
+If you want to check configurations, you can use `cpcchain-cli contract view -h`, for example:
 
 ```bash
 
-cpc-fusion get-configs --abi build/contracts/HelloWorld.json --address <contract address>
+cpchain-cli contract view -c build/contracts/MyContract.json --contract-address <contract address> -m <method name of parameter name>
 
 ```
 
-If you want to call your contract, you can use `cpc-fusion call-func -h`, for example:
+If you want to call your contract, you can use `cpchain-cli contract call -h`, for example:
 
 ```bash
 
-cpc-fusion call-func --keystore <keystore/key> --address <contract address> --abi build/contracts/HelloWorld.json --function <function name> --parameters <parameters>
+cpchain-cli contract call -c build/contracts/MyContract.json --contract-address <contract address> -m <function name> --amount <amount> -k <keystore file> --endpoint https://civilian.testnet.cpchain.io --chainID 41
 
 ```
 
-Add you can add `--value` to specify the amount of `CPC`.
-
-If you want to call `view` function to check something, you can use `cpc-fusion view-func -h`, for example:
-
-```bash
-
-cpc-fusion view-func --abi build/contracts/HelloWorld.json --address <contract address> --function <function name> --parameters <parameters>
-
-```
+Add you can add `--amount` to specify the amount of `CPC`.
 
 ## Deploy on Mainnet
 
-```bash
+Just replace the `endpoint` and `chainID` with:
 
-# deploy on the Mainnet (Specify your keystore)
-cpc-fusion deploy --keystore <The path of your keystore>  --abi build/contracts/MyContract.json
-
-```
++ `endpoint`: [https://civilian.cpchain.io]
++ `chainID`: 337
 
 ## Develop
 
