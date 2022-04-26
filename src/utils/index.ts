@@ -5,6 +5,7 @@ import fs from 'fs'
 import loader from './loader'
 import truffle from './truffle'
 import logger from './logger'
+import wallet from './wallet'
 
 // 至少一个字母、至少一个数字、至少一个特殊字符
 const regexPassword = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
@@ -14,6 +15,7 @@ const passwordInputHint =
 
 const passwordHint = kleur.green('Please input your password: ')
 const passwordValidator = (pwd: string) => regexPassword.test(pwd) || passwordInputHint
+const passwordEmpty = (pwd: string) => pwd.length > 0 || 'Password is empty'
 
 export default {
   inputPwdWithHint (hint: string) {
@@ -36,15 +38,23 @@ export default {
       process.stdout.write(hint)
       rl.question('pwd1', (pwd) => {
         console.log()
-        const r = validator(pwd)
+        const r = validator(pwd.trim())
         if (typeof r === 'string') {
           console.log(kleur.red('Password is not valid: ' + r))
           process.exit(1)
         }
         rl.close()
-        resolve(pwd)
+        resolve(pwd.trim())
       })
     })
+  },
+  getPasswordOrInput (password: string | undefined, warnIfNotEmpty: string,
+    hint: string = passwordHint, validator: (pwd: string) => boolean | string = passwordEmpty) {
+    if (password) {
+      this.logger.warn(warnIfNotEmpty)
+      return password.trim()
+    }
+    return this.inputPwd(hint, validator)
   },
   readKeystore (keystorePath: string): Promise<object> {
     return new Promise((resolve, reject) => {
@@ -63,5 +73,6 @@ export default {
   },
   loader,
   truffle,
-  logger
+  logger,
+  wallet
 }

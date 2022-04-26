@@ -130,14 +130,8 @@ export default {
     }
     options.chainID = Number(options.chainID)
     // check or require-input password
-    if (!options.password) {
-      options.password = await utils.inputPwdWithValidator((pwd: string) => {
-        return pwd.length > 0 || 'Password is empty'
-      })
-    } else {
-      utils.logger.warn('Password is not empty, but this is unsecure when show in the console')
-    }
-    options.password = options.password.trim()
+    options.password = await utils.getPasswordOrInput(options.password,
+      'Password is not empty, but this is unsecure when show in the console')
     const keystore = await utils.loader.readFile(options.keystore)
     const wallet = await wallets.fromEncryptedJson(keystore, options.password)
     utils.logger.info(`You wallet's address is ${wallet.address}`)

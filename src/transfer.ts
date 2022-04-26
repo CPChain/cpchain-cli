@@ -1,5 +1,10 @@
 import { Command } from 'commander'
-import { addChainOptions, addWalletOptions, addConfigOptions } from './options'
+import {
+  addChainOptions,
+  addWalletOptions,
+  addConfigOptions,
+  addTransactionOptions
+} from './options'
 import utils from './utils'
 import { loadConfig } from './configs'
 
@@ -11,6 +16,7 @@ export default {
     addChainOptions(cmd)
     addWalletOptions(cmd)
     addConfigOptions(cmd)
+    addTransactionOptions(cmd)
     cmd.action(async (options) => {
       // check if config file exists
       const configPath = options.config || 'cpchain-cli.toml'
@@ -24,16 +30,28 @@ export default {
       } else if (!options.chainID || !options.endpoint || !options.keystore) {
         throw new Error('Config file not found, please provide --chainID, --endpoint, --keystore')
       }
-      const { endpoint, chainID } = options
-      const { keystore, password } = options
-      console.log(endpoint, chainID, keystore, password)
-      // const { to, amount, memo } = options
-      // const { address, privateKey } = await importKeystore(keystore, password)
-      // const { nonce, gasPrice, gasLimit } = await getNonceAndGasPriceAndGasLimit(endpoint, address, chainID)
-      // const tx = await createTransferTx(address, to, amount, memo, nonce, gasPrice, gasLimit)
-      // const signedTx = signTx(privateKey, tx)
-      // const result = await sendTx(endpoint, signedTx)
-      // console.log(result)
+      await this.transfer(options)
     })
+  },
+  async transfer (options: any) {
+    // read password
+    options.password = await utils.getPasswordOrInput(options.password,
+      'Password is not empty, but this is unsecure when show in the console or save in file')
+    const { endpoint, chainID } = options
+    const { keystore, password } = options
+    const { to, amount, gasLimit } = options
+    console.log(endpoint, chainID, keystore, password)
+    console.log(to, amount, gasLimit)
+    // load wallet
+    const wallet = await utils.wallet.getWallet(keystore, password)
+    console.log(wallet.address)
+
+    // const { to, amount, memo } = options
+    // const { address, privateKey } = await importKeystore(keystore, password)
+    // const { nonce, gasPrice, gasLimit } = await getNonceAndGasPriceAndGasLimit(endpoint, address, chainID)
+    // const tx = await createTransferTx(address, to, amount, memo, nonce, gasPrice, gasLimit)
+    // const signedTx = signTx(privateKey, tx)
+    // const result = await sendTx(endpoint, signedTx)
+    // console.log(result)
   }
 }
