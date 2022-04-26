@@ -22,7 +22,7 @@ export default {
       // check if config file exists
       const configPath = options.config || 'cpchain-cli.toml'
       if (await utils.loader.fileExists(configPath)) {
-        const config = await loadConfig(configPath)
+        const config = loadConfig(configPath)
         // allow to override options of config file
         options.chainID = options.chainID || config.chain.chainID
         options.endpoint = options.endpoint || config.chain.endpoint

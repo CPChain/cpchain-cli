@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 
 export interface ConfigOptions {
-  configPath: string
+  config: string
 }
 
 export function addConfigOptions (command: Command, required: boolean = false) {

@@ -3,13 +3,17 @@ import utils from './utils'
 import cpc from 'cpchain-typescript-sdk'
 import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
 import path from 'path'
-import { ChainOptions, addChainOptions, WalletOptions, addWalletOptions } from './options'
+import {
+  ChainOptions, addChainOptions, WalletOptions, addWalletOptions,
+  ConfigOptions, addConfigOptions
+} from './options'
+import { loadConfig } from './configs'
 
 const contract = cpc.contract
 const providers = cpc.providers
 const wallets = cpc.wallets
 
-interface Options extends ChainOptions, WalletOptions{
+interface Options extends ChainOptions, WalletOptions, ConfigOptions {
   methodName: string,
   builtContract: string,
   contractAddress: string,
@@ -67,6 +71,18 @@ async function getAccount (options: Options): Promise<CPCWallet> {
   return account
 }
 
+async function overideConfig (options: Options) {
+  // allow to override options of config file
+  const configPath = options.config || 'cpchain-cli.toml'
+  if (await utils.loader.fileExists(configPath)) {
+    const config = loadConfig(configPath)
+    options.chainID = options.chainID || config.chain.chainID
+    options.endpoint = options.endpoint || config.chain.endpoint
+    options.keystore = options.keystore || config.wallet.keystore
+    options.password = options.password || config.wallet.password
+  }
+}
+
 export default {
   loadCommand (program: Command) {
     const contractCommand = program
@@ -78,9 +94,11 @@ export default {
       .description('Deploy a smart contract')
     addChainOptions(deployCommand)
     addWalletOptions(deployCommand)
+    addConfigOptions(deployCommand)
     addContractOptions({ command: deployCommand, method: false, contractAddress: false, builtContract: true })
     deployCommand
-      .action((options: any) => {
+      .action(async (options: any) => {
+        await overideConfig(options)
         this.deploy(options)
       })
     // View Commander
@@ -88,8 +106,10 @@ export default {
       .command('view')
       .description('Call a view method a smart contract')
     addChainOptions(viewCommaner)
+    addConfigOptions(viewCommaner)
     addContractOptions({ command: viewCommaner, method: true, contractAddress: true, builtContract: true })
-    viewCommaner.action((options: any) => {
+    viewCommaner.action(async (options: any) => {
+      await overideConfig(options)
       options.parameters = options.parameters || []
       this.callViewMethod(options)
     })
@@ -99,8 +119,10 @@ export default {
       .description('Call a method a smart contract')
     addChainOptions(callCommaner)
     addWalletOptions(callCommaner)
+    addConfigOptions(callCommaner)
     addContractOptions({ command: callCommaner, method: true, contractAddress: true, builtContract: true })
-    callCommaner.action((options: any) => {
+    callCommaner.action(async (options: any) => {
+      await overideConfig(options)
       options.parameters = options.parameters || []
       this.callMethod(options)
     })
@@ -110,8 +132,10 @@ export default {
       .option('-P, --project <path>', 'Path of truffle project, default is current floder', '.')
     addChainOptions(truffleCommand)
     addWalletOptions(truffleCommand)
+    addConfigOptions(truffleCommand)
     addContractOptions({ command: truffleCommand, method: false, contractAddress: false, builtContract: false })
-    truffleCommand.action((options: any) => {
+    truffleCommand.action(async (options: any) => {
+      await overideConfig(options)
       this.truffleDeploy(options)
     })
   },
