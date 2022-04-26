@@ -19,5 +19,8 @@ export default {
         }
       })
     })
+  },
+  readFileSync (filePath: string): string {
+    return fs.readFileSync(filePath, 'utf8')
   }
 }

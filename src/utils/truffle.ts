@@ -9,6 +9,27 @@ interface Artifact {
   contractName: string
   abi: [],
   bytecode: string
+  address: string
+  deployed: () => {}
+}
+
+class Deployer {
+  private signer: CPCWallet
+  constructor (signer: CPCWallet) {
+    this.signer = signer
+  }
+
+  async deploy (artifact: Artifact, ...args: any[]): Promise<any> {
+    logger.info(`Deploying ${artifact.contractName} contract...`)
+
+    const contractFactory = new cpc.contract.ContractFactory(artifact.abi, artifact.bytecode, this.signer)
+    const myContract = await contractFactory.deploy(...args)
+
+    await myContract.deployTransaction.wait()
+    logger.info(`Contract ${artifact.contractName} address is ${myContract.address}`)
+    artifact.address = myContract.address
+    return myContract
+  }
 }
 
 class Artifacts {
@@ -25,43 +46,25 @@ class Artifacts {
     if (!loader.fileExists(builtContractPath)) {
       throw new Error(`Contract file "${builtContractPath}" not found`)
     }
-
-    return loader.readFile(builtContractPath).then(data => {
-      const contractJson = JSON.parse(data)
-      if (contractJson.abi === undefined || contractJson.bytecode === undefined || contractJson.contractName === undefined) {
-        throw new Error('Invalid contract file: missing abi, bytecode or contractName')
-      }
+    const data = loader.readFileSync(builtContractPath)
+    const contractJson: Artifact = JSON.parse(data)
+    if (contractJson.abi === undefined || contractJson.bytecode === undefined || contractJson.contractName === undefined) {
+      throw new Error('Invalid contract file: missing abi, bytecode or contractName')
+    }
+    contractJson.deployed = async () => {
       return contractJson
-    })
-  }
-}
-
-class Deployer {
-  private signer: CPCWallet
-  constructor (signer: CPCWallet) {
-    this.signer = signer
-  }
-
-  async deploy (contractModule: Promise<Artifact>, ...args: any[]): Promise<any> {
-    const artifact = await contractModule
-    logger.info(`Deploying ${artifact.contractName} contract...`)
-
-    const contractFactory = new cpc.contract.ContractFactory(artifact.abi, artifact.bytecode, this.signer)
-    const myContract = await contractFactory.deploy(...args)
-
-    await myContract.deployTransaction.wait()
-    logger.info(`Contract ${artifact.contractName} address is ${myContract.address}`)
-    return myContract
+    }
+    return contractJson
   }
 }
 
 async function loadMigration (filePath: string, signer: CPCWallet) {
   const migration = await loader.readFile(filePath)
+  const deployer = new Deployer(signer)
   // eslint-disable-next-line no-unused-vars
   const artifacts = new Artifacts(filePath)
   // eslint-disable-next-line no-unused-vars
   const module: { exports?: (Deployer)=>{} } = {}
-  const deployer = new Deployer(signer)
   // eslint-disable-next-line no-eval
   eval(migration)
   module.exports(deployer)
