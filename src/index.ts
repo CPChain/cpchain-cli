@@ -10,6 +10,7 @@ import chalk from 'chalk'
 import leven from 'leven'
 import contract from './contract'
 import createServer from './create-server'
+import transfer from './transfer'
 
 function showBox (message: string) {
   const box = boxen(message, {
@@ -108,6 +109,8 @@ function main () {
   contract.loadCommand(program)
   // Create server
   createServer.loadCommands(program)
+  // Transfer
+  transfer.loadCommand(program)
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {

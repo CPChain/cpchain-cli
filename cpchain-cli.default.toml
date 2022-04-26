@@ -1,0 +1,8 @@
+
+[chain]
+endpoint="https://civilian.testnet.cpchain.io"
+chainID=41
+
+[wallet]
+# keystore=""
+# password=""

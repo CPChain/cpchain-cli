@@ -3,35 +3,19 @@ import utils from './utils'
 import cpc from 'cpchain-typescript-sdk'
 import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
 import path from 'path'
+import { ChainOptions, addChainOptions, WalletOptions, addWalletOptions } from './options'
 
 const contract = cpc.contract
 const providers = cpc.providers
 const wallets = cpc.wallets
 
-interface Options {
-  endpoint: string,
-  chainID: number,
-  keystore: string,
-  password: string,
+interface Options extends ChainOptions, WalletOptions{
   methodName: string,
   builtContract: string,
   contractAddress: string,
   parameters: string[]
   amount: string,
   project: string
-}
-
-function addChainOptions (command: Command) {
-  command
-    .option('--endpoint <url>', 'Endpoint of the blockchain', 'https://civilian.testnet.cpchain.io')
-    .option('--chainID <id>', 'Chain ID of the blockchain', '41')
-  return command
-}
-
-function addWalletOptions (command: Command) {
-  command.requiredOption('-k, --keystore <path>', 'Path of keystore file')
-    .option('-p, --password <pwd>', 'Password of keystore file')
-  return command
 }
 
 function addContractOptions ({ command, method, contractAddress, builtContract }:

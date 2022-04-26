@@ -10,7 +10,9 @@
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
     "lint:fix": "eslint --ignore-path .eslintignore --ext .js,.ts --fix .",
     "prepare": "husky install",
-    "cloc": "gocloc --not-match-d=\"node_modules\" ."
+    "cloc": "gocloc --not-match-d=\"node_modules\" .",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "bin": {
     "cpchain-cli": "dist/bundle.cjs"
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@swc/cli": "^0.1.56",
     "@swc/core": "^1.2.160",
+    "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "eslint": "^7.32.0",
@@ -39,7 +42,9 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
     "husky": "^7.0.4",
+    "jest": "^28.0.0",
     "swc-loader": "^0.1.15",
+    "ts-jest": "^28.0.0-next.0",
     "ts-loader": "^9.2.8",
     "typescript": "^4.6.2",
     "webpack-cli": "^4.9.2"
@@ -53,6 +58,7 @@
     "kleur": "^4.1.4",
     "leven": "^4.0.0",
     "prompts": "^2.4.2",
+    "toml": "^3.0.0",
     "ts-node": "^10.7.0"
   }
 }
