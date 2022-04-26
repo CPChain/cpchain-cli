@@ -1,10 +1,11 @@
-import { ChainOptions, WalletOptions } from '../options'
+import { ChainOptions, WalletOptions, ContractOptions } from '../options'
 import fs from 'fs'
 import toml from 'toml'
 
 export interface CliConfig {
   chain: ChainOptions
   wallet: WalletOptions
+  contract: ContractOptions
 }
 
 export function loadConfig (configPath: string = 'cpchain-cli.toml'): CliConfig {

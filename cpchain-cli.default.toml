@@ -1,8 +1,15 @@
 
 [chain]
+# This is the testnet's civilian node
 endpoint="https://civilian.testnet.cpchain.io"
 chainID=41
 
 [wallet]
 # keystore=""
 # password=""
+
+[contract]
+# built-contract is the path of the built JSON file by truffle
+builtContract=""
+# After the contract is deployed, you can specify this field when you need to call the contract
+contractAddress=""

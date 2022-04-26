@@ -4,8 +4,10 @@ import cpc from 'cpchain-typescript-sdk'
 import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
 import path from 'path'
 import {
-  ChainOptions, addChainOptions, WalletOptions, addWalletOptions,
-  ConfigOptions, addConfigOptions
+  ChainOptions, addChainOptions,
+  WalletOptions, addWalletOptions,
+  ConfigOptions, addConfigOptions,
+  ContractOptions, addContractOptions
 } from './options'
 import { loadConfig } from './configs'
 
@@ -13,28 +15,20 @@ const contract = cpc.contract
 const providers = cpc.providers
 const wallets = cpc.wallets
 
-interface Options extends ChainOptions, WalletOptions, ConfigOptions {
+interface Options extends ChainOptions, WalletOptions, ConfigOptions, ContractOptions {
   methodName: string,
-  builtContract: string,
-  contractAddress: string,
   parameters: string[]
   amount: string,
   project: string
 }
 
-function addContractOptions ({ command, method, contractAddress, builtContract }:
-  { command: Command, method: boolean, contractAddress: boolean, builtContract: boolean }) {
+function addContractMethodOptions ({ command, method }:
+  { command: Command, method: boolean}) {
   command
     .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
     .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
   if (method) {
     command.requiredOption('-m --method-name <name>', 'Name of the method')
-  }
-  if (contractAddress) {
-    command.requiredOption('--contract-address <address>', 'Address of the contract')
-  }
-  if (builtContract) {
-    command.requiredOption('-c, --built-contract <path>', 'Path of built contract file')
   }
   return command
 }
@@ -80,6 +74,8 @@ async function overideConfig (options: Options) {
     options.endpoint = options.endpoint || config.chain.endpoint
     options.keystore = options.keystore || config.wallet.keystore
     options.password = options.password || config.wallet.password
+    options.builtContract = options.builtContract || config.contract.builtContract
+    options.contractAddress = options.contractAddress || config.contract.contractAddress
   }
 }
 
@@ -95,7 +91,8 @@ export default {
     addChainOptions(deployCommand)
     addWalletOptions(deployCommand)
     addConfigOptions(deployCommand)
-    addContractOptions({ command: deployCommand, method: false, contractAddress: false, builtContract: true })
+    addContractOptions(deployCommand)
+    addContractMethodOptions({ command: deployCommand, method: false })
     deployCommand
       .action(async (options: any) => {
         await overideConfig(options)
@@ -107,7 +104,8 @@ export default {
       .description('Call a view method a smart contract')
     addChainOptions(viewCommaner)
     addConfigOptions(viewCommaner)
-    addContractOptions({ command: viewCommaner, method: true, contractAddress: true, builtContract: true })
+    addContractOptions(viewCommaner)
+    addContractMethodOptions({ command: viewCommaner, method: true })
     viewCommaner.action(async (options: any) => {
       await overideConfig(options)
       options.parameters = options.parameters || []
@@ -120,7 +118,8 @@ export default {
     addChainOptions(callCommaner)
     addWalletOptions(callCommaner)
     addConfigOptions(callCommaner)
-    addContractOptions({ command: callCommaner, method: true, contractAddress: true, builtContract: true })
+    addContractOptions(callCommaner)
+    addContractMethodOptions({ command: callCommaner, method: true })
     callCommaner.action(async (options: any) => {
       await overideConfig(options)
       options.parameters = options.parameters || []
@@ -133,7 +132,7 @@ export default {
     addChainOptions(truffleCommand)
     addWalletOptions(truffleCommand)
     addConfigOptions(truffleCommand)
-    addContractOptions({ command: truffleCommand, method: false, contractAddress: false, builtContract: false })
+    addContractMethodOptions({ command: truffleCommand, method: false })
     truffleCommand.action(async (options: any) => {
       await overideConfig(options)
       this.truffleDeploy(options)
