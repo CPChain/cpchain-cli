@@ -63,6 +63,32 @@ cpchain-cli contract deploy-truffle --keystore <The path of your keystore> --end
 
 ```
 
+### CPChain CLI Configuration
+
+If you thinks the options is too many to input, you can create a file `cpchain-cli.toml`, then specify options in this file, as below:
+
+```toml
+
+[chain]
+endpoint="https://civilian.testnet.cpchain.io"
+chainID=41
+
+[wallet]
+# The path of your keystore file
+keystore="keystore/key.json"
+# You can specify the password in configuration (Only in DEVELOPMENT and TESTING, this is unsafe)
+# password="123456"
+
+```
+
+Then, when you deploy smart contracts, you commands:
+
+```bash
+
+cpchain-cli contract deploy -c build/contracts/MyContract.json
+
+```
+
 ### Manage Contract by Command-Line
 
 After deploying your contract, you will need to manage it. The cpchain-cli can also support managing deployed contract. Please run as below to get all commands:
@@ -116,6 +142,33 @@ npm run build
 
 # publish
 # npm publish
+
+```
+
+## Transfer CPC
+
+You can transfer CPC by this CLI: `cpchain-cli -h`. Firstly, please create a file named `cpchain-cli.toml`:
+
+```toml
+
+[chain]
+endpoint="https://civilian.testnet.cpchain.io"
+chainID=41
+
+[wallet]
+# The path of your keystore file
+keystore="keystore/key.json"
+# You can specify the password in configuration (Only in DEVELOPMENT and TESTING, this is unsafe)
+# password="123456"
+
+
+```
+
+Then, the commands as below:
+
+```bash
+
+cpchain-cli transfer -t 0x1fbBacADcD78f3508aa55bd948fE27660E58a0d2 -a 0.9
 
 ```
 
