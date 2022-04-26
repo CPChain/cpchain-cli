@@ -7,6 +7,7 @@ import {
 } from './options'
 import utils from './utils'
 import { loadConfig } from './configs'
+import cpchain from 'cpchain-typescript-sdk'
 
 export default {
   loadCommand (program: Command) {
@@ -40,18 +41,31 @@ export default {
     const { endpoint, chainID } = options
     const { keystore, password } = options
     const { to, amount, gasLimit } = options
-    console.log(endpoint, chainID, keystore, password)
-    console.log(to, amount, gasLimit)
     // load wallet
     const wallet = await utils.wallet.getWallet(keystore, password)
-    console.log(wallet.address)
-
-    // const { to, amount, memo } = options
-    // const { address, privateKey } = await importKeystore(keystore, password)
-    // const { nonce, gasPrice, gasLimit } = await getNonceAndGasPriceAndGasLimit(endpoint, address, chainID)
-    // const tx = await createTransferTx(address, to, amount, memo, nonce, gasPrice, gasLimit)
-    // const signedTx = signTx(privateKey, tx)
-    // const result = await sendTx(endpoint, signedTx)
-    // console.log(result)
+    // confirm
+    const confirm = await utils.inputConfirm(`Are you sure to transfer ${amount} CPC to ${to}?`)
+    if (!confirm) {
+      utils.logger.info('Canceled')
+      return
+    }
+    // load provider
+    const provider = cpchain.providers.createJsonRpcProvider(endpoint, Number(chainID))
+    // tx
+    const tx = {
+      to: to,
+      from: wallet.address,
+      value: cpchain.utils.parseCPC('' + amount),
+      nonce: await provider.getTransactionCount(wallet.address),
+      gasLimit: Number(gasLimit),
+      gasPrice: await provider.getGasPrice(),
+      chainId: Number(chainID)
+    }
+    const rawTx = await wallet.signTransaction(tx)
+    const response = await provider.sendTransaction(rawTx)
+    utils.logger.info(`Transaction hash: ${response.hash}`)
+    utils.logger.info('Waiting the transacion be mined...')
+    const receipt = await provider.waitForTransaction(response.hash)
+    utils.logger.info(`Transaction status: ${receipt.status === 1 ? 'success' : 'fail'}`)
   }
 }

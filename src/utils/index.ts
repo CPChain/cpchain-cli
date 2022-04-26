@@ -71,6 +71,25 @@ export default {
   readJsonFile (filePath: string): object {
     return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
   },
+  inputConfirm (message: string): Promise<boolean> {
+    const rl = createInterface({
+      input: process.stdin,
+      output: new Writable({
+        write (_chunk, _encoding, callback) {
+          callback()
+        }
+      }),
+      terminal: true
+    })
+    return new Promise(resolve => {
+      process.stdout.write(kleur.green(`${message} (y/n): `))
+      rl.question('', (answer) => {
+        console.log()
+        rl.close()
+        resolve(answer.trim() === 'y')
+      })
+    })
+  },
   loader,
   truffle,
   logger,
