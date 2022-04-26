@@ -79,9 +79,15 @@ keystore="keystore/key.json"
 # You can specify the password in configuration (Only in DEVELOPMENT and TESTING, this is unsafe)
 # password="123456"
 
+[contract]
+# built-contract is the path of the built JSON file by truffle
+builtContract=""
+# After the contract is deployed, you can specify this field when you need to call the contract
+contractAddress=""
+
 ```
 
-Then, when you deploy smart contracts, you commands:
+Then, when you deploy smart contracts, your commands:
 
 ```bash
 
@@ -99,13 +105,15 @@ cpchain-cli contract -h
 
 ```
 
-If you want to check configurations, you can use `cpcchain-cli contract view -h`, for example:
+If you want to check options, you can use `cpcchain-cli contract view -h`, for example:
 
 ```bash
 
 cpchain-cli contract view -c build/contracts/MyContract.json --contract-address <contract address> -m <method name of parameter name>
 
 ```
+
+*You can add `-c`(`--built-contract`) and `--contract-address` to the `cpchain-cli.toml` as above. Then you don't need to pass these two options in command, just run: `cpchain-cli contract view -m <method name>`.*
 
 If you want to call your contract, you can use `cpchain-cli contract call -h`, for example:
 
