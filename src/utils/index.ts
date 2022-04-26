@@ -58,6 +58,9 @@ export default {
       })
     })
   },
+  readJsonFile (filePath: string): object {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  },
   loader,
   truffle,
   logger
