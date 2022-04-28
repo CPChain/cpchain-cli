@@ -76,6 +76,8 @@ async function overideConfig (options: Options) {
     options.password = options.password || config.wallet.password
     options.builtContract = options.builtContract || config.contract.builtContract
     options.contractAddress = options.contractAddress || config.contract.contractAddress
+    utils.logger.info('Endpoint: ' + options.endpoint)
+    utils.logger.info('Chain ID: ' + options.chainID)
   }
 }
 

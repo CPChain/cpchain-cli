@@ -1,6 +1,6 @@
 {
   "name": "cpchain-cli",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A CLI tool for developing smart contracts on CPChain mainnet",
   "main": "src/index.ts",
   "type": "module",
@@ -12,7 +12,8 @@
     "prepare": "husky install",
     "cloc": "gocloc --not-match-d=\"node_modules\" .",
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "pub": "npm run build && npm publish --access public"
   },
   "bin": {
     "cpchain-cli": "dist/bundle.cjs"

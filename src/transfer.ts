@@ -28,6 +28,8 @@ export default {
         options.endpoint = options.endpoint || config.chain.endpoint
         options.keystore = options.keystore || config.wallet.keystore
         options.password = options.password || config.wallet.password
+        utils.logger.info('Endpoint: ' + options.endpoint)
+        utils.logger.info('Chain ID: ' + options.chainID)
       } else if (!options.chainID || !options.endpoint || !options.keystore) {
         throw new Error('Config file not found, please provide --chainID, --endpoint, --keystore')
       }
