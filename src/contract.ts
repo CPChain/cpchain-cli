@@ -25,7 +25,7 @@ interface Options extends ChainOptions, WalletOptions, ConfigOptions, ContractOp
 function addContractMethodOptions ({ command, method }:
   { command: Command, method: boolean}) {
   command
-    .option('-a, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
+    .option('-A, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
     .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
   if (method) {
     command.requiredOption('-m --method-name <name>', 'Name of the method')
