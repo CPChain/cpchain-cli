@@ -4,4 +4,6 @@ example*
 keystore
 
 cpchain-cli.toml
+cpchain-cli.*.toml
+!cpchain-cli.default.toml
 coverage
