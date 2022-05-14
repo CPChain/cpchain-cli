@@ -1,6 +1,6 @@
 import cpc from 'cpchain-typescript-sdk'
 import kleur from 'kleur'
-import { program } from 'commander'
+import { Command } from 'commander'
 import { createInterface } from 'readline'
 import { Writable } from 'stream'
 import fs from 'fs'
@@ -90,14 +90,15 @@ function createAccount (options: Options) {
   })
 }
 
-const command = program.command('account')
-  .description('Account management')
-  .command('new')
-  .description('Create a new account')
-  .option('-o, --output-dir <dir>', 'Output directory', defaultOutputDir)
-  .option('--unsafe', 'Do not validate password (Please only use it when test!)', false)
-  .action((options: Options) => {
-    createAccount(options)
-  })
+export default (program: Command) => {
+  const command = program.command('account')
+    .description('Account management')
 
-export default command
+  command.command('new')
+    .description('Create a new account')
+    .option('-o, --output-dir <dir>', 'Output directory', defaultOutputDir)
+    .option('--unsafe', 'Do not validate password (Please only use it when test!)', false)
+    .action((options: Options) => {
+      createAccount(options)
+    })
+}

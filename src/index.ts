@@ -10,8 +10,8 @@ import chalk from 'chalk'
 import leven from 'leven'
 import contract from './contract'
 import createServer from './create-server'
-import transfer from './commands/transfer'
-import account from './commands/account'
+import createTransferCommand from './commands/transfer'
+import createAccountCommand from './commands/account'
 
 function showBox (message: string) {
   const box = boxen(message, {
@@ -105,13 +105,13 @@ function main () {
     })
 
   // Account management
-  program.addCommand(account)
+  createAccountCommand(program)
   // Contract management
   contract.loadCommand(program)
   // Create server
   createServer.loadCommands(program)
   // Transfer
-  program.addCommand(transfer)
+  createTransferCommand(program)
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {

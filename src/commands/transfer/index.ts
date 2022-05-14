@@ -1,4 +1,4 @@
-import { program } from 'commander'
+import { Command } from 'commander'
 import {
   addChainOptions,
   addWalletOptions,
@@ -44,33 +44,33 @@ async function transfer (options: any) {
   utils.logger.info(`Transaction status: ${receipt.status === 1 ? 'success' : 'fail'}`)
 }
 
-const cmd = program
-  .command('transfer')
-  .description('Transfer CPC to other account')
+export default (program: Command) => {
+  const cmd = program
+    .command('transfer')
+    .description('Transfer CPC to other account')
 
-// add options
-addChainOptions(cmd)
-addWalletOptions(cmd)
-addConfigOptions(cmd)
-addTransactionOptions(cmd)
+  // add options
+  addChainOptions(cmd)
+  addWalletOptions(cmd)
+  addConfigOptions(cmd)
+  addTransactionOptions(cmd)
 
-// actions
-cmd.action(async (options) => {
-  // check if config file exists
-  const configPath = options.config || 'cpchain-cli.toml'
-  if (await utils.loader.fileExists(configPath)) {
-    const config = loadConfig(configPath)
-    // allow to override options of config file
-    options.chainID = options.chainID || config.chain.chainID
-    options.endpoint = options.endpoint || config.chain.endpoint
-    options.keystore = options.keystore || config.wallet.keystore
-    options.password = options.password || config.wallet.password
-    utils.logger.info('Endpoint: ' + options.endpoint)
-    utils.logger.info('Chain ID: ' + options.chainID)
-  } else if (!options.chainID || !options.endpoint || !options.keystore) {
-    throw new Error('Config file not found, please provide --chainID, --endpoint, --keystore')
-  }
-  await transfer(options)
-})
-
-export default cmd
+  // actions
+  cmd.action(async (options) => {
+    // check if config file exists
+    const configPath = options.config || 'cpchain-cli.toml'
+    if (await utils.loader.fileExists(configPath)) {
+      const config = loadConfig(configPath)
+      // allow to override options of config file
+      options.chainID = options.chainID || config.chain.chainID
+      options.endpoint = options.endpoint || config.chain.endpoint
+      options.keystore = options.keystore || config.wallet.keystore
+      options.password = options.password || config.wallet.password
+      utils.logger.info('Endpoint: ' + options.endpoint)
+      utils.logger.info('Chain ID: ' + options.chainID)
+    } else if (!options.chainID || !options.endpoint || !options.keystore) {
+      throw new Error('Config file not found, please provide --chainID, --endpoint, --keystore')
+    }
+    await transfer(options)
+  })
+}
