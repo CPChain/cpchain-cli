@@ -10,7 +10,7 @@ import chalk from 'chalk'
 import leven from 'leven'
 import contract from './contract'
 import createServer from './create-server'
-import transfer from './transfer'
+import transfer from './commands/transfer'
 import account from './commands/account'
 
 function showBox (message: string) {
@@ -111,7 +111,7 @@ function main () {
   // Create server
   createServer.loadCommands(program)
   // Transfer
-  transfer.loadCommand(program)
+  program.addCommand(transfer)
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {
