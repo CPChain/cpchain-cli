@@ -1,7 +1,7 @@
 import { GenerateConfig, generate } from './generate'
 import { BaseContractsBuilder } from './builder/tmpls/BaseContractsBuilder'
 import baseContracts from './types/base-contracts'
-import account from './account'
+// import account from './account'
 import boxen from 'boxen'
 import prompts from 'prompts'
 import { program } from 'commander'
@@ -11,6 +11,7 @@ import leven from 'leven'
 import contract from './contract'
 import createServer from './create-server'
 import transfer from './transfer'
+import account from './commands/account'
 
 function showBox (message: string) {
   const box = boxen(message, {
@@ -104,7 +105,7 @@ function main () {
     })
 
   // Account management
-  account.loadCommands(program)
+  program.addCommand(account)
   // Contract management
   contract.loadCommand(program)
   // Create server
