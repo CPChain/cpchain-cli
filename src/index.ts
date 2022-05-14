@@ -8,7 +8,7 @@ import { program } from 'commander'
 import projectConfig from '../package.json'
 import chalk from 'chalk'
 import leven from 'leven'
-import contract from './contract'
+import createContractCommand from './commands/contract'
 import createServer from './create-server'
 import createTransferCommand from './commands/transfer'
 import createAccountCommand from './commands/account'
@@ -107,7 +107,7 @@ function main () {
   // Account management
   createAccountCommand(program)
   // Contract management
-  contract.loadCommand(program)
+  createContractCommand(program)
   // Create server
   createServer.loadCommands(program)
   // Transfer
