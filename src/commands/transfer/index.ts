@@ -3,7 +3,8 @@ import {
   addChainOptions,
   addWalletOptions,
   addConfigOptions,
-  addTransactionOptions
+  addTransactionOptions,
+  newOptionIsSet
 } from '../../options'
 import utils from '../../utils'
 import { loadConfig } from '../../configs'
@@ -49,8 +50,10 @@ export default (program: Command) => {
     .command('transfer')
     .description('Transfer CPC to other account')
 
+  // wether options is set
+  const isSet = newOptionIsSet()
   // add options
-  addChainOptions(cmd)
+  addChainOptions(cmd, false, isSet)
   addWalletOptions(cmd)
   addConfigOptions(cmd)
   addTransactionOptions(cmd)
@@ -62,7 +65,15 @@ export default (program: Command) => {
     if (await utils.loader.fileExists(configPath)) {
       const config = loadConfig(configPath)
       // allow to override options of config file
+      // 优先级：命令行 > 配置文件 > 默认值
+      options.endpoint = options.endpoint || config.chain.endpoint
+      if (!isSet.endpoint) {
+        options.endpoint = config.chain.endpoint
+      }
       options.chainID = options.chainID || config.chain.chainID
+      if (!isSet.chainID) {
+        options.chainID = config.chain.chainID
+      }
       options.endpoint = options.endpoint || config.chain.endpoint
       options.keystore = options.keystore || config.wallet.keystore
       options.password = options.password || config.wallet.password
