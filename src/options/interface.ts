@@ -2,7 +2,7 @@ import { Command } from 'commander'
 import utils from '../utils'
 import { loadConfig } from '../configs'
 
-export type OptionType = string | number
+export type OptionType = string | number | string[]
 
 export type OptionSection = 'chain' | 'wallet' | 'contract'
 
@@ -64,7 +64,13 @@ export class MyCommander implements ICommander {
 
   addOption (option: Option, required: boolean = false): ICommander {
     const { name, description, defaultValue } = option
-    const optionStr = `--${name} <${name}>`
+    let optionStr = `--${name}`
+    if (defaultValue && Array.isArray(defaultValue)) {
+      optionStr += ` [${name}]`
+    } else {
+      optionStr += ` <${name}>`
+    }
+
     const handler = setOptionIsSet(name, this.optionsIsSet)
     this.command.option(optionStr, description, handler, defaultValue)
     if (required) {

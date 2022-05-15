@@ -4,33 +4,22 @@ import cpc from 'cpchain-typescript-sdk'
 import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
 import path from 'path'
 import {
-  ChainOptions, addChainOptions,
-  WalletOptions, addWalletOptions,
-  ConfigOptions, addConfigOptions,
-  ContractOptions, addContractOptions
+  ChainOptions,
+  WalletOptions,
+  ContractOptions,
+  MyCommander,
+  options
 } from '../../options'
-import { loadConfig } from '../../configs'
 
 const contract = cpc.contract
 const providers = cpc.providers
 const wallets = cpc.wallets
 
-interface Options extends ChainOptions, WalletOptions, ConfigOptions, ContractOptions {
+interface Options extends ChainOptions, WalletOptions, ContractOptions {
   methodName: string,
   parameters: string[]
   amount: string,
   project: string
-}
-
-function addContractMethodOptions ({ command, method }:
-  { command: Command, method: boolean}) {
-  command
-    .option('-A, --parameters [parameters...]', 'Arguments of the contract\'s constructor')
-    .option('--amount <amount>', 'Amount of the transaction (CPC)', '0')
-  if (method) {
-    command.requiredOption('-m --method-name <name>', 'Name of the method')
-  }
-  return command
 }
 
 async function validateChain (options: Options) {
@@ -63,22 +52,6 @@ async function getAccount (options: Options): Promise<CPCWallet> {
   const provider = providers.createJsonRpcProvider(options.endpoint, options.chainID)
   const account = wallet.connect(provider)
   return account
-}
-
-async function overideConfig (options: Options) {
-  // allow to override options of config file
-  const configPath = options.config || 'cpchain-cli.toml'
-  if (await utils.loader.fileExists(configPath)) {
-    const config = loadConfig(configPath)
-    options.chainID = options.chainID || config.chain.chainID
-    options.endpoint = options.endpoint || config.chain.endpoint
-    options.keystore = options.keystore || config.wallet.keystore
-    options.password = options.password || config.wallet.password
-    options.builtContract = options.builtContract || config.contract.builtContract
-    options.contractAddress = options.contractAddress || config.contract.contractAddress
-    utils.logger.info('Endpoint: ' + options.endpoint)
-    utils.logger.info('Chain ID: ' + options.chainID)
-  }
 }
 
 async function deploy (options: Options) {
@@ -173,9 +146,11 @@ async function callMethod (options: Options) {
   if (!myContract[options.methodName]) {
     utils.logger.fatal(`Method ${options.methodName} not found`)
   }
-  const tx = await myContract[options.methodName](...options.parameters, {
-    value: cpc.utils.parseCPC(options.amount)
-  })
+  const params: {value?: any} = {}
+  if (options.amount) {
+    params.value = cpc.utils.parseCPC(options.amount)
+  }
+  const tx = await myContract[options.methodName](...options.parameters, params)
   utils.logger.info(`Transaction hash is ${tx.hash}, please wait for confirmation...`)
   await tx.wait()
   utils.logger.info(`Transaction ${tx.hash} has been sent`)
@@ -207,57 +182,69 @@ export default (program: Command) => {
     .command('contract')
     .description('Smart contracts management')
   // Deploy Comander
-  const deployCommand = contractCommand
+  const deployCommand = new MyCommander(contractCommand
     .command('deploy')
-    .description('Deploy a smart contract')
-  addChainOptions(deployCommand)
-  addWalletOptions(deployCommand)
-  addConfigOptions(deployCommand)
-  addContractOptions(deployCommand)
-  addContractMethodOptions({ command: deployCommand, method: false })
-  deployCommand
+    .description('Deploy a smart contract'))
+  deployCommand.addOption(options.ChainIdOption)
+    .addOption(options.EndpointOption)
+    .addOption(options.KeystoreOption)
+    .addOption(options.PasswordOption)
+    .addOption(options.BuiltContractOption, true)
+    .addOption(options.AmountOption)
+    .addOption(options.ParametersOption)
+    .useConfig()
     .action(async (options: any) => {
-      await overideConfig(options)
+      utils.logger.info('Endpoint: ' + options.endpoint)
+      utils.logger.info('Chain ID: ' + options.chainID)
       deploy(options)
     })
+
   // View Commander
-  const viewCommaner = contractCommand
+  const viewCommaner = new MyCommander(contractCommand
     .command('view')
-    .description('Call a view method a smart contract')
-  addChainOptions(viewCommaner)
-  addConfigOptions(viewCommaner)
-  addContractOptions(viewCommaner)
-  addContractMethodOptions({ command: viewCommaner, method: true })
-  viewCommaner.action(async (options: any) => {
-    await overideConfig(options)
-    options.parameters = options.parameters || []
-    callViewMethod(options)
-  })
+    .description('Call a view method a smart contract'))
+  viewCommaner.addOption(options.ChainIdOption)
+    .addOption(options.EndpointOption)
+    .addOption(options.ContractAddressOption)
+    .addOption(options.BuiltContractOption, true)
+    .addOption(options.MethodNameOption, true)
+    .addOption(options.AmountOption)
+    .addOption(options.ParametersOption)
+    .useConfig()
+    .action(async (options: any) => {
+      callViewMethod(options)
+    })
+
   // Call commander
-  const callCommaner = contractCommand
+  const callCommaner = new MyCommander(contractCommand
     .command('call')
-    .description('Call a method a smart contract')
-  addChainOptions(callCommaner)
-  addWalletOptions(callCommaner)
-  addConfigOptions(callCommaner)
-  addContractOptions(callCommaner)
-  addContractMethodOptions({ command: callCommaner, method: true })
-  callCommaner.action(async (options: any) => {
-    await overideConfig(options)
-    options.parameters = options.parameters || []
-    callMethod(options)
-  })
+    .description('Call a method a smart contract'))
+  callCommaner.addOption(options.ChainIdOption)
+    .addOption(options.EndpointOption)
+    .addOption(options.ContractAddressOption)
+    .addOption(options.KeystoreOption)
+    .addOption(options.PasswordOption)
+    .addOption(options.BuiltContractOption, true)
+    .addOption(options.MethodNameOption, true)
+    .addOption(options.AmountOption)
+    .addOption(options.ParametersOption)
+    .addOption(options.GasLimitOption)
+    .useConfig()
+    .action(async (options: any) => {
+      callMethod(options)
+    })
+
   // Deploy truffle project
-  const truffleCommand = contractCommand.command('deploy-truffle')
+  const truffleCommand = new MyCommander(contractCommand.command('deploy-truffle')
     .description('Deploy a truffle project')
-    .option('-P, --project <path>', 'Path of truffle project, default is current floder', '.')
-  addChainOptions(truffleCommand)
-  addWalletOptions(truffleCommand)
-  addConfigOptions(truffleCommand)
-  addContractMethodOptions({ command: truffleCommand, method: false })
-  truffleCommand.action(async (options: any) => {
-    await overideConfig(options)
-    truffleDeploy(options)
-  })
+    .requiredOption('-P, --project <path>', 'Path of truffle project, default is current floder', '.'))
+  truffleCommand.addOption(options.ChainIdOption)
+    .addOption(options.EndpointOption)
+    .addOption(options.KeystoreOption)
+    .addOption(options.PasswordOption)
+    .useConfig()
+    .action(async (options: any) => {
+      truffleDeploy(options)
+    })
   return contractCommand
 }

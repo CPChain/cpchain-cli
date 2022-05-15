@@ -3,12 +3,16 @@ import { OptionsIsSet } from './interface'
 import { EndpointOption, ChainIdOption } from './chain'
 import { KeystoreOption, PasswordOption } from './wallet'
 import { TransferToOption, GasLimitOption, AmountOption } from './transaction'
+import {
+  BuiltContractOption,
+  ContractAddressOption,
+  ParametersOption,
+  MethodNameOption
+} from './contract'
 export { MyCommander } from './interface'
-export { ChainOptions, addChainOptions } from './chain'
-export { WalletOptions, addWalletOptions } from './wallet'
-export { ConfigOptions, addConfigOptions } from './config'
-export { TransactionOptions, addTransactionOptions } from './transaction'
-export { ContractOptions, addContractOptions } from './contract'
+export { ChainOptions } from './chain'
+export { WalletOptions } from './wallet'
+export { ContractOptions } from './contract'
 
 export const options = {
   EndpointOption,
@@ -17,7 +21,11 @@ export const options = {
   PasswordOption,
   TransferToOption,
   GasLimitOption,
-  AmountOption
+  AmountOption,
+  BuiltContractOption,
+  ContractAddressOption,
+  ParametersOption,
+  MethodNameOption
 }
 
 export function newOptionIsSet (): OptionsIsSet {

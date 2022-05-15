@@ -1,27 +1,29 @@
-import { Command } from 'commander'
+import { Option } from './interface'
 
 export interface ContractOptions {
   builtContract: string,
   contractAddress: string,
 }
 
-export function addContractOptions (command: Command, opts: {
-  builtContract?: { required: boolean },
-  contractAddress?: { required: boolean }
-  } = {
-  builtContract: { required: false },
-  contractAddress: { required: false }
-}) {
-  const options = {
-    builtContract: ['-b, --builtContract <path>', 'Path of built contract file'],
-    contractAddress: ['-a, --contractAddress <address>', 'Address of the contract']
-  }
-  for (const key in options) {
-    const [option, description, defaultValue] = options[key]
-    if (opts[key].required) {
-      command.requiredOption(option, description, defaultValue)
-    } else {
-      command.option(option, description, defaultValue)
-    }
-  }
-}
+export const BuiltContractOption = {
+  name: 'builtContract',
+  description: 'Path of the built contract JSON file',
+  section: 'contract'
+} as Option
+
+export const ContractAddressOption = {
+  name: 'contractAddress',
+  description: 'Contract address',
+  section: 'contract'
+} as Option
+
+export const ParametersOption = {
+  name: 'parameters',
+  description: 'Parameters of the method',
+  defaultValue: []
+} as Option
+
+export const MethodNameOption = {
+  name: 'methodName',
+  description: 'Method name'
+} as Option

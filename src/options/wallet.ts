@@ -1,4 +1,3 @@
-import { Command } from 'commander'
 import { Option } from './interface'
 
 export interface WalletOptions {
@@ -17,21 +16,3 @@ export const PasswordOption = {
   description: 'Password of the keystore file',
   section: 'wallet'
 } as Option
-
-export function addWalletOptions (command: Command,
-  opts: { keystore: {required: boolean}, password: {required: boolean} } =
-  { keystore: { required: false }, password: { required: false } }) {
-  const options = {
-    keystore: ['-k, --keystore <path>', 'Path of keystore file'],
-    password: ['-p, --password <pwd>', 'Password of keystore file']
-  }
-  for (const key in options) {
-    const [option, description, defaultValue] = options[key]
-    if (opts[key].required) {
-      command.requiredOption(option, description, defaultValue)
-    } else {
-      command.option(option, description, defaultValue)
-    }
-  }
-  return command
-}
