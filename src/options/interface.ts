@@ -1,4 +1,12 @@
 
+export type OptionType = string | number
+
+export interface Option {
+  name: string
+  description: string
+  defaultValue?: OptionType
+}
+
 export type OptionsIsSet = {
   [key: string]: boolean
 }

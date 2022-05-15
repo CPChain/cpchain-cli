@@ -67,11 +67,11 @@ export default (program: Command) => {
       // allow to override options of config file
       // 优先级：命令行 > 配置文件 > 默认值
       options.endpoint = options.endpoint || config.chain.endpoint
-      if (!isSet.endpoint) {
+      if (!isSet.endpoint && config.chain.endpoint) {
         options.endpoint = config.chain.endpoint
       }
       options.chainID = options.chainID || config.chain.chainID
-      if (!isSet.chainID) {
+      if (!isSet.chainID && config.chain.chainID) {
         options.chainID = config.chain.chainID
       }
       options.endpoint = options.endpoint || config.chain.endpoint
