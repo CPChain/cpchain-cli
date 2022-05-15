@@ -1,13 +1,9 @@
 import { Command } from 'commander'
 import {
-  addWalletOptions,
-  addConfigOptions,
-  addTransactionOptions,
   MyCommander,
   options
 } from '../../options'
 import utils from '../../utils'
-import { loadConfig } from '../../configs'
 import cpchain from 'cpchain-typescript-sdk'
 
 async function transfer (options: any) {
@@ -53,27 +49,18 @@ export default (program: Command) => {
   const myCommander = new MyCommander(cmd)
   myCommander.addOption(options.EndpointOption)
     .addOption(options.ChainIdOption)
+    .addOption(options.KeystoreOption, true)
+    .addOption(options.PasswordOption, true)
+    .addOption(options.TransferToOption, true)
+    .addOption(options.AmountOption, true)
+    .addOption(options.GasLimitOption)
     .useConfig()
-
-  addWalletOptions(cmd)
-  addConfigOptions(cmd)
-  addTransactionOptions(cmd)
 
   // actions
   myCommander.action(async (options) => {
     // check if config file exists
-    const configPath = options.config || 'cpchain-cli.toml'
-    if (await utils.loader.fileExists(configPath)) {
-      const config = loadConfig(configPath)
-      // allow to override options of config file
-      // 优先级：命令行 > 配置文件 > 默认值
-      options.keystore = options.keystore || config.wallet.keystore
-      options.password = options.password || config.wallet.password
-      utils.logger.info('Endpoint: ' + options.endpoint)
-      utils.logger.info('Chain ID: ' + options.chainID)
-    } else if (!options.chainID || !options.endpoint || !options.keystore) {
-      throw new Error('Config file not found, please provide --chainID, --endpoint, --keystore')
-    }
+    utils.logger.info('Endpoint: ' + options.endpoint)
+    utils.logger.info('Chain ID: ' + options.chainID)
     await transfer(options)
   })
 }

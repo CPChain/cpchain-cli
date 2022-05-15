@@ -13,6 +13,12 @@ export interface Option {
   section?: OptionSection // section name in config file
 }
 
+export const ConfigOption = {
+  name: 'config',
+  description: 'Path of the config file',
+  defaultValue: 'cpchain-cli.toml'
+} as Option
+
 export type OptionsIsSet = {
   [key: string]: boolean
 }
@@ -41,15 +47,18 @@ export class MyCommander implements ICommander {
   optionsIsSet: OptionsIsSet
   enableConfig: boolean
   options: Option[]
+  required: {[key: string]: boolean}
   constructor (command: Command) {
     this.command = command
     this.optionsIsSet = {} as OptionsIsSet
     this.enableConfig = false
     this.options = []
+    this.required = {}
   }
 
   useConfig (): ICommander {
     this.enableConfig = true
+    this.addOption(ConfigOption)
     return this
   }
 
@@ -57,10 +66,9 @@ export class MyCommander implements ICommander {
     const { name, description, defaultValue } = option
     const optionStr = `--${name} <${name}>`
     const handler = setOptionIsSet(name, this.optionsIsSet)
+    this.command.option(optionStr, description, handler, defaultValue)
     if (required) {
-      this.command.requiredOption(optionStr, description, handler, defaultValue)
-    } else {
-      this.command.option(optionStr, description, handler, defaultValue)
+      this.required[name] = true
     }
     this.options.push(option)
     return this
@@ -97,6 +105,11 @@ export class MyCommander implements ICommander {
         // string to number
         if (typeof defaultValue === 'number') {
           options[name] = Number(options[name])
+        }
+        // check if required option is set
+        if (this.required[name] && !options[name]) {
+          utils.logger.error(`Error: ${name} is required`)
+          return
         }
       }
       fn(options)

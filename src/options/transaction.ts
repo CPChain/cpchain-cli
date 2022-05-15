@@ -1,10 +1,27 @@
 import { Command } from 'commander'
+import { Option } from './interface'
 
 export interface TransactionOptions {
   to: string
   amount: number
   gasLimit: number
 }
+
+export const TransferToOption = {
+  name: 'to',
+  description: 'Transfer to'
+} as Option
+
+export const AmountOption = {
+  name: 'amount',
+  description: 'Amount (CPC)'
+} as Option
+
+export const GasLimitOption = {
+  name: 'gasLimit',
+  description: 'Gas limit',
+  defaultValue: 1000000
+} as Option
 
 export function addTransactionOptions (command: Command, opts: {
   to: { required: boolean },
