@@ -4,16 +4,18 @@ import { OptionsIsSet, setOptionIsSet, OptionHandler, Option } from './interface
 const DEFAULT_RPC_URL = 'https://civilian.testnet.cpchain.io'
 const DEFAULT_CHAIN_ID = 41
 
-const EndpointOption = {
+export const EndpointOption = {
   name: 'endpoint',
   description: 'RPC endpoint',
-  defaultValue: DEFAULT_RPC_URL
+  defaultValue: DEFAULT_RPC_URL,
+  section: 'chain'
 } as Option
 
-const ChainIdOption = {
+export const ChainIdOption = {
   name: 'chainID',
   description: 'Chain ID',
-  defaultValue: DEFAULT_CHAIN_ID
+  defaultValue: DEFAULT_CHAIN_ID,
+  section: 'chain'
 } as Option
 
 export interface ChainOptions {

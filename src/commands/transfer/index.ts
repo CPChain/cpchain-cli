@@ -1,10 +1,10 @@
 import { Command } from 'commander'
 import {
-  addChainOptions,
   addWalletOptions,
   addConfigOptions,
   addTransactionOptions,
-  newOptionIsSet
+  MyCommander,
+  options
 } from '../../options'
 import utils from '../../utils'
 import { loadConfig } from '../../configs'
@@ -50,31 +50,23 @@ export default (program: Command) => {
     .command('transfer')
     .description('Transfer CPC to other account')
 
-  // wether options is set
-  const isSet = newOptionIsSet()
-  // add options
-  addChainOptions(cmd, false, isSet)
+  const myCommander = new MyCommander(cmd)
+  myCommander.addOption(options.EndpointOption)
+    .addOption(options.ChainIdOption)
+    .useConfig()
+
   addWalletOptions(cmd)
   addConfigOptions(cmd)
   addTransactionOptions(cmd)
 
   // actions
-  cmd.action(async (options) => {
+  myCommander.action(async (options) => {
     // check if config file exists
     const configPath = options.config || 'cpchain-cli.toml'
     if (await utils.loader.fileExists(configPath)) {
       const config = loadConfig(configPath)
       // allow to override options of config file
       // 优先级：命令行 > 配置文件 > 默认值
-      options.endpoint = options.endpoint || config.chain.endpoint
-      if (!isSet.endpoint && config.chain.endpoint) {
-        options.endpoint = config.chain.endpoint
-      }
-      options.chainID = options.chainID || config.chain.chainID
-      if (!isSet.chainID && config.chain.chainID) {
-        options.chainID = config.chain.chainID
-      }
-      options.endpoint = options.endpoint || config.chain.endpoint
       options.keystore = options.keystore || config.wallet.keystore
       options.password = options.password || config.wallet.password
       utils.logger.info('Endpoint: ' + options.endpoint)
