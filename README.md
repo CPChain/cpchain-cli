@@ -56,7 +56,7 @@ Now, copy your address and access [faucet](https://testnet.cpchain.io/#/faucet) 
 npm run build
 
 # deploy on testnet (Specify your keystore)
-cpchain-cli contract deploy --keystore <The path of your keystore>  -c build/contracts/MyContract.json --endpoint https://civilian.testnet.cpchain.io --chainID 41
+cpchain-cli contract deploy --keystore <The path of your keystore> --builtContract build/contracts/MyContract.json --endpoint https://civilian.testnet.cpchain.io --chainID 41
 
 # if need deploy multiple contracts which writes in migrations, you can use deploy-truffle command
 cpchain-cli contract deploy-truffle --keystore <The path of your keystore> --endpoint https://civilian.testnet.cpchain.io --chainID 41 -P <Project Path>
@@ -91,7 +91,7 @@ Then, when you deploy smart contracts, your commands:
 
 ```bash
 
-cpchain-cli contract deploy -c build/contracts/MyContract.json
+cpchain-cli contract deploy --builtContract build/contracts/MyContract.json
 
 ```
 
@@ -109,11 +109,11 @@ If you want to check options, you can use `cpcchain-cli contract view -h`, for e
 
 ```bash
 
-cpchain-cli contract view -c build/contracts/MyContract.json --contract-address <contract address> -m <method name of parameter name>
+cpchain-cli contract view --builtContract build/contracts/MyContract.json --contract-address <contract address> --methodName <method name of parameter name>
 
 ```
 
-*You can add `-c`(`--built-contract`) and `--contract-address` to the `cpchain-cli.toml` as above. Then you don't need to pass these two options in command, just run: `cpchain-cli contract view -m <method name>`.*
+*You can add `--built-contract` and `--contract-address` to the `cpchain-cli.toml` as above. Then you don't need to pass these two options in command, just run: `cpchain-cli contract view --methodName <method name>`.*
 
 If you want to call your contract, you can use `cpchain-cli contract call -h`, for example:
 
@@ -176,7 +176,7 @@ Then, the commands as below:
 
 ```bash
 
-cpchain-cli transfer -t 0x1fbBacADcD78f3508aa55bd948fE27660E58a0d2 -a 0.9
+cpchain-cli transfer --to 0x1fbBacADcD78f3508aa55bd948fE27660E58a0d2 --amount 0.9
 
 ```
 
