@@ -9,6 +9,7 @@ import {
   ParametersOption,
   MethodNameOption
 } from './contract'
+import { OutputDirOption } from './outputDir'
 export { MyCommander } from './interface'
 export { ChainOptions } from './chain'
 export { WalletOptions } from './wallet'
@@ -25,7 +26,8 @@ export const options = {
   BuiltContractOption,
   ContractAddressOption,
   ParametersOption,
-  MethodNameOption
+  MethodNameOption,
+  OutputDirOption
 }
 
 export function newOptionIsSet (): OptionsIsSet {

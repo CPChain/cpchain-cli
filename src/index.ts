@@ -8,6 +8,7 @@ import createContractCommand from './commands/contract'
 import createServerCommand from './commands/create-server'
 import createTransferCommand from './commands/transfer'
 import createAccountCommand from './commands/account'
+import createGenerateCommand from './commands/generate-sol-sdk'
 
 function showBox (message: string) {
   const box = boxen(message, {
@@ -39,6 +40,8 @@ function main () {
   createServerCommand(program)
   // Transfer
   createTransferCommand(program)
+  // Generate command
+  createGenerateCommand(program)
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {
