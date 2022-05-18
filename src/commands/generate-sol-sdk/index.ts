@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 import { MyCommander, options } from '../../options'
 import { loadContract, createContractSdkBuilder } from '../../sol'
+import fs from 'fs'
 
 interface SdkGenerator {
   builtContract: string
@@ -9,9 +10,14 @@ interface SdkGenerator {
 async function generateSdk (options: SdkGenerator) {
   const data = loadContract(options.builtContract)
   const builder = createContractSdkBuilder()
-  const result = builder.setName(data.name)
-    .build()
+  builder.setName(data.contractName)
+  data.listEvents().forEach(event => {
+    builder.addEvent(event)
+  })
+
+  const result = builder.build()
   console.log(result)
+  fs.writeFileSync(`src/generated/${data.contractName}.ts`, result)
 }
 
 export default (program: Command) => {

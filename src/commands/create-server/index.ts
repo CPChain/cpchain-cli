@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import fs from 'fs'
 import utils from '../../utils'
-import { AbiItemType, EventItem, loadContract } from './types'
+import { AbiItemType, EventItem, loadContract } from '../../sol'
 
 const defaultOutputDir = 'example-server'
 

@@ -43,11 +43,32 @@ export interface AbiItem extends BaseItem {
 export type ABI = (AbiItem|EventItem)[]
 
 export interface BuiltContractData {
-  name: string
+  contractName: string
   abi: ABI
 }
 
-export function loadContract (path: string): BuiltContractData {
+export class ContractInstance {
+  data: BuiltContractData
+
+  constructor (data: BuiltContractData) {
+    this.data = data
+  }
+
+  get contractName () : string {
+    return this.data.contractName
+  }
+
+  get abi (): ABI {
+    return this.data.abi
+  }
+
+  listEvents (): EventItem[] {
+    const events = this.data.abi.filter(item => item.type === AbiItemType.EVENT)
+    return events as EventItem[]
+  }
+}
+
+export function loadContract (path: string): ContractInstance {
   const builtData = utils.readJsonFile(path) as BuiltContractData
-  return builtData
+  return new ContractInstance(builtData)
 }

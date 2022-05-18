@@ -9,9 +9,17 @@ export interface IContractSdkBuilder {
   build(): string
 }
 
-const tmpl = `
+const fieldsMapping = `export type uint256 = BigNumber
+export type bool = boolean
+export type address = string
+export type uint64 = number
+export type uint8 = number
+export type int8 = number`
 
-import { CPCWallet } from 'cpchain-typescript-sdk'
+const tmpl = `/* eslint-disable camelcase */
+import { CPCWallet, BigNumber } from 'cpchain-typescript-sdk'
+
+${fieldsMapping}
 
 export default class {{name}} {
   wallet: CPCWallet
@@ -23,8 +31,6 @@ export default class {{name}} {
     }
   }
 }
-
-
 `
 
 export class ContractSdkBuilder implements IContractSdkBuilder {
@@ -39,8 +45,7 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
   }
 
   get name (): string {
-    // camelCase
-    return this._name.replace(/([A-Z])/g, '_$1').toLowerCase()
+    return this._name
   }
 
   get events (): EventItem[] {
@@ -77,9 +82,24 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
   }
 
   build (): string {
+    // name
     const tmplGenerated = tmpl
       .replace('{{name}}', this._name)
-    return tmplGenerated
+
+    // Event
+    const eventTmpl = `export interface {{name}} {
+{{fields}}
+}
+`
+    const eventTmplGenerated = this._events.map(e => {
+      const fields = e.inputs.map(i => {
+        return `  ${i.name}: ${i.type}`
+      }).join(',\n')
+      return eventTmpl
+        .replace('{{name}}', e.name)
+        .replace('{{fields}}', fields)
+    }).join('\n')
+    return `${tmplGenerated}\n${eventTmplGenerated}`
   }
 }
 
