@@ -11,9 +11,9 @@ import {
 } from './contract'
 import { OutputDirOption } from './outputDir'
 export { MyCommander } from './interface'
-export { ChainOptions } from './chain'
-export { WalletOptions } from './wallet'
-export { ContractOptions } from './contract'
+export type { ChainOptions } from './chain'
+export type { WalletOptions } from './wallet'
+export type { ContractOptions } from './contract'
 
 export const options = {
   EndpointOption,

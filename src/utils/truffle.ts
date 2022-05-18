@@ -2,8 +2,7 @@
 import loader from './loader'
 import path from 'path'
 import logger from './logger'
-import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
-import cpc from 'cpchain-typescript-sdk'
+import cpc, { CPCWallet } from 'cpchain-typescript-sdk'
 
 interface Artifact {
   contractName: string
