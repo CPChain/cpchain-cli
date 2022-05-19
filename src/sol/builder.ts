@@ -9,19 +9,16 @@ export interface IContractSdkBuilder {
   build(): string
 }
 
-const fieldsMapping = `export type uint256 = BigNumber
-export type bool = boolean
-export type address = string
-export type uint64 = number
-export type uint8 = number
-export type int8 = number`
+const tmpl = `/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
+import {
+  CPCWallet, BigNumber, CPCJsonRpcProvider, Contract, TxResult,
+  uint256, bool, address, uint64, uint8, int8
+} from 'cpchain-typescript-sdk'
 
-const tmpl = `/* eslint-disable */
-import cpc, { CPCWallet, BigNumber, CPCJsonRpcProvider, Contract } from 'cpchain-typescript-sdk'
-
+// eslint-disable-next-line
 {{abi}}
-
-${fieldsMapping}
 `
 
 const viewerTmpl = `export class {{name}}Viewer {
@@ -31,20 +28,25 @@ const viewerTmpl = `export class {{name}}Viewer {
   constructor (provider: CPCJsonRpcProvider, contractAddress: address) {
     this.provider = provider
     this.contractAddress = contractAddress
-    this.contract = new Contract(this.contractAddress, abi)
+    this.contract = new Contract(this.contractAddress, abi, this.provider)
   }
 {{methods}}
 }`
 
 const callerTmpl = `export class {{name}}Caller {
   wallet: CPCWallet
-  constructor (wallet: CPCWallet) {
+  contractAddress: address
+  contract: Contract
+  constructor (wallet: CPCWallet, contractAddress: address) {
     this.wallet = wallet
     // check provider in wallet
     if (!wallet.provider) {
       throw new Error('Wallet provider is not set')
     }
+    this.contractAddress = contractAddress
+    this.contract = new Contract(this.contractAddress, abi, this.wallet)
   }
+{{methods}}
 }`
 
 export class ContractSdkBuilder implements IContractSdkBuilder {
@@ -101,19 +103,27 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
 
   buildMethod (m: AbiItem, payable: boolean): string {
     const { name, inputs, outputs } = m
-    console.log(name, inputs)
+    // handle inputs
+    // If the method's first parameter don't have a name, this means this is a array object
+    if (inputs.length > 0 && inputs[0].name === '') {
+      inputs[0].name = 'i'
+    }
+
     const params = inputs.map(i => i.name).join(', ')
     const paramsWithType = inputs.map(i => `${i.name}: ${i.type}`).join(', ')
-    const payableStr = !payable ? '' : ((params ? ', ' : '') + '_amount: BigNumber')
-    const returns = outputs.map(i => `${i.name}: ${i.type}`).join(', ')
+    const txParams = '_tx: {value?: BigNumber} = {}'
+    const txParamsStr = !payable ? '' : ((params ? ', ' : '') + '_tx')
+    const payableStr = !payable ? '' : ((params ? ', ' : '') + txParams)
+    const returns = !payable ? '[' + outputs.map(i => `${i.type}`).join(', ') + ']' : 'TxResult'
     return `
-  async {{name}} ({{paramsWithType}}{{payableStr}}): Promise<any> {
-    return await this.contract.{{name}}({{params}})
+  async {{name}} ({{paramsWithType}}{{payableStr}}): Promise<{{returns}}> {
+    return await this.contract.{{name}}({{params}}{{txParamsStr}})
   }`.replace(/{{name}}/g, name)
       .replace(/{{paramsWithType}}/g, paramsWithType)
       .replace(/{{params}}/g, params)
-      .replace('{{returns}}', returns)
+      .replace(/{{returns}}/g, returns)
       .replace(/{{payableStr}}/g, payableStr)
+      .replace(/{{txParamsStr}}/g, txParamsStr)
   }
 
   build (): string {
@@ -121,17 +131,19 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
     const abiGenerated = `const abi = ${this.abi}`
     // body
     const tmplGenerated = tmpl.replace('{{abi}}', abiGenerated)
-    // methods
+    // viewer methods
     const viewerMethods = this._methods
       .filter(m => m.stateMutability === 'view' || m.stateMutability === 'pure')
-      .filter(m => m.inputs.length > 0)
-      .filter(m => m.inputs[0].name.length > 0)
       .map(m => this.buildMethod(m, false)).join('\n')
+    // caller methods
+    const callerMethods = this._methods
+      .filter(m => m.stateMutability === 'payable' || m.stateMutability === 'nonpayable')
+      .map(m => this.buildMethod(m, true)).join('\n')
 
     // viewer
     const viewerGenerated = viewerTmpl.replace('{{name}}', this._name).replace('{{methods}}', viewerMethods)
     // caller
-    const callerGenerated = callerTmpl.replace('{{name}}', this._name)
+    const callerGenerated = callerTmpl.replace('{{name}}', this._name).replace('{{methods}}', callerMethods)
 
     // Event
     const eventTmpl = `export interface {{name}} {

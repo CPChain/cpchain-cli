@@ -19,7 +19,6 @@ async function generateSdk (options: SdkGenerator) {
   })
 
   const result = builder.build()
-  console.log(result)
   fs.writeFileSync(`src/generated/${data.contractName}.ts`, result)
 }
 
