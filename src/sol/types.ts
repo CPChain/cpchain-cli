@@ -1,4 +1,6 @@
 import utils from '../utils'
+import { Ast, AstNode } from './ast'
+import { AstParser, IAstParser } from './parser'
 
 export enum AbiItemType {
   FUNCTION = 'function',
@@ -47,13 +49,16 @@ export type ABI = (AbiItem|EventItem)[]
 export interface BuiltContractData {
   contractName: string
   abi: ABI
+  ast: Ast
 }
 
 export class ContractInstance {
-  data: BuiltContractData
+  private data: BuiltContractData
+  private _parser: IAstParser
 
   constructor (data: BuiltContractData) {
     this.data = data
+    this._parser = new AstParser(data.ast)
   }
 
   get contractName () : string {
@@ -64,6 +69,14 @@ export class ContractInstance {
     return this.data.abi
   }
 
+  get ast (): Ast {
+    return this.data.ast
+  }
+
+  get astParser (): IAstParser {
+    return this._parser
+  }
+
   listEvents (): EventItem[] {
     const events = this.data.abi.filter(item => item.type === AbiItemType.EVENT)
     return events as EventItem[]
@@ -72,6 +85,12 @@ export class ContractInstance {
   listMethods (): AbiItem[] {
     const methods = this.data.abi.filter(item => item.type === AbiItemType.FUNCTION)
     return methods as AbiItem[]
+  }
+
+  listAstMethods (): AstNode[] {
+    const contractNode = this.data.ast.nodes.filter(node => node.nodeType === 'ContractDefinition')[0]
+    const methods = contractNode.nodes.filter(item => item.nodeType === 'FunctionDefinition')
+    return methods as AstNode[]
   }
 }
 

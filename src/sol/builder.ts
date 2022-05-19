@@ -1,4 +1,5 @@
 import { EventItem, AbiItem } from './types'
+import { IAstParser } from './parser'
 
 export interface BuildResult {
   result: string
@@ -7,6 +8,7 @@ export interface BuildResult {
 
 export interface IContractSdkBuilder {
   setName(name: string): IContractSdkBuilder
+  setAstParser(astParser: IAstParser): IContractSdkBuilder
   addEvent(e: EventItem): IContractSdkBuilder
   addEvents(e: EventItem[]): IContractSdkBuilder
   addMethod(m: AbiItem): IContractSdkBuilder
@@ -58,11 +60,13 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
   private _name: string
   private _events: EventItem[]
   private _methods: AbiItem[]
+  private _astParser: IAstParser
 
   constructor () {
     this._name = ''
     this._events = []
     this._methods = []
+    this._astParser = null
   }
 
   get name (): string {
@@ -83,6 +87,11 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
 
   setName (name: string): IContractSdkBuilder {
     this._name = name
+    return this
+  }
+
+  setAstParser (astParser: IAstParser): IContractSdkBuilder {
+    this._astParser = astParser
     return this
   }
 
@@ -158,11 +167,27 @@ main()`.replace(/{{name}}/g, this.name)
     return tmpl
   }
 
+  buildEntities (): string {
+    return this._astParser.Entities().map(e => {
+      const tmpl = `export interface {{name}}Entity {
+{{fields}}
+}
+`
+      const fields = e.fields.map(f => {
+        const { name, type } = f
+        return `  ${name}: ${type}`
+      }).join('\n')
+      return tmpl.replace(/{{name}}/g, e.name).replace(/{{fields}}/g, fields)
+    }).join('\n')
+  }
+
   build (): BuildResult {
     // abi
     const abiGenerated = `const abi = ${this.abi}`
     // body
     const tmplGenerated = tmpl.replace('{{abi}}', abiGenerated)
+    // entities
+    const entitiesGenerated = this.buildEntities()
     // viewer methods
     const viewerMethods = this._methods
       .filter(m => m.stateMutability === 'view' || m.stateMutability === 'pure')
@@ -190,8 +215,12 @@ main()`.replace(/{{name}}/g, this.name)
         .replace('{{name}}', e.name)
         .replace('{{fields}}', fields)
     }).join('\n')
+    let result = tmplGenerated
+    if (entitiesGenerated) {
+      result += '\n' + entitiesGenerated
+    }
     return {
-      result: `${tmplGenerated}\n${eventTmplGenerated}\n${viewerGenerated}\n\n${callerGenerated}\n`,
+      result: `${result}\n${eventTmplGenerated}\n${viewerGenerated}\n\n${callerGenerated}\n`,
       demo: this.buildDemo()
     }
   }

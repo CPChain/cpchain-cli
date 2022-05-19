@@ -11,7 +11,9 @@ interface SdkGenerator {
 async function generateSdk (options: SdkGenerator) {
   const data = loadContract(options.builtContract)
   const builder = createContractSdkBuilder()
+  console.log(data.astParser.Entities())
   builder.setName(data.contractName)
+    .setAstParser(data.astParser)
   data.listEvents().forEach(event => {
     builder.addEvent(event)
   })
@@ -29,7 +31,7 @@ async function generateSdk (options: SdkGenerator) {
   utils.logger.info(`Generated code in ${generatedFile}`)
   utils.showBox('Below is the demo code to test the generated code:')
   utils.logger.info('------------------------------------------------------')
-  console.log(result.demo)
+  // console.log(result.demo)
   utils.logger.info('------------------------------------------------------')
   fs.writeFileSync(generatedFile, result.result)
 }
