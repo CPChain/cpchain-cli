@@ -33,11 +33,13 @@ export interface EventItem extends BaseItem {
   inputs: EventField[]
 }
 
+export type StateMutability = 'pure' | 'view' | 'nonpayable' | 'payable'
+
 export interface AbiItem extends BaseItem {
   constant: boolean,
   outputs: any[],
   payable: boolean,
-  stateMutability: string
+  stateMutability: StateMutability
 }
 
 export type ABI = (AbiItem|EventItem)[]
@@ -65,6 +67,11 @@ export class ContractInstance {
   listEvents (): EventItem[] {
     const events = this.data.abi.filter(item => item.type === AbiItemType.EVENT)
     return events as EventItem[]
+  }
+
+  listMethods (): AbiItem[] {
+    const methods = this.data.abi.filter(item => item.type === AbiItemType.FUNCTION)
+    return methods as AbiItem[]
   }
 }
 

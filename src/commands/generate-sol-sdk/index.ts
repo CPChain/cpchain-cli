@@ -14,6 +14,9 @@ async function generateSdk (options: SdkGenerator) {
   data.listEvents().forEach(event => {
     builder.addEvent(event)
   })
+  data.listMethods().forEach(method => {
+    builder.addMethod(method)
+  })
 
   const result = builder.build()
   console.log(result)

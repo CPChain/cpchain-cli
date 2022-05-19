@@ -1877,10 +1877,10 @@ convert-source-map@^1.4.0, convert-source-map@^1.6.0, convert-source-map@^1.7.0:
   dependencies:
     safe-buffer "~5.1.1"
 
-cpchain-typescript-sdk@0.0.14:
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/cpchain-typescript-sdk/-/cpchain-typescript-sdk-0.0.14.tgz#aaed97ef8045573ab21c22103ed4def512ed30c8"
-  integrity sha512-qg5f9VRL04TfozxSRZYmQC73QlIWCEJi1POdJcEtv61IVEmZKWHq/0Niq6y2hl0MrgEZFcAo5sYhM+aq6tXfkQ==
+cpchain-typescript-sdk@0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/cpchain-typescript-sdk/-/cpchain-typescript-sdk-0.0.16.tgz#e24d1bc05fd0037553194531fdb75996baeceb89"
+  integrity sha512-s4v2d17ZKh4klopiPhyM2uog6SwBSal6N8H5XduR+LWWf48b8FAeabCGociiyYh32l6ap96d1iyDQp/xsroxHw==
   dependencies:
     cross-fetch "^3.1.5"
     ethers "^5.6.1"
