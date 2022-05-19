@@ -6,6 +6,7 @@ import loader from './loader'
 import truffle from './truffle'
 import logger from './logger'
 import wallet from './wallet'
+import boxen from 'boxen'
 
 // 至少一个字母、至少一个数字、至少一个特殊字符
 const regexPassword = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
@@ -17,7 +18,19 @@ const passwordHint = kleur.green('Please input your password: ')
 const passwordValidator = (pwd: string) => regexPassword.test(pwd) || passwordInputHint
 const passwordEmpty = (pwd: string) => pwd.length > 0 || 'Password is empty'
 
+function showBox (message: string) {
+  const box = boxen(message, {
+    align: 'center',
+    borderStyle: 'double',
+    borderColor: 'green',
+    dimBorder: true,
+    padding: 1
+  })
+  console.log(box + '\n')
+}
+
 export default {
+  showBox,
   inputPwdWithHint (hint: string) {
     return this.inputPwd(hint)
   },

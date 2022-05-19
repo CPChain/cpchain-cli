@@ -1,4 +1,3 @@
-import boxen from 'boxen'
 import { program } from 'commander'
 import projectConfig from '../package.json'
 import chalk from 'chalk'
@@ -9,21 +8,11 @@ import createServerCommand from './commands/create-server'
 import createTransferCommand from './commands/transfer'
 import createAccountCommand from './commands/account'
 import createGenerateCommand from './commands/generate-sol-sdk'
-
-function showBox (message: string) {
-  const box = boxen(message, {
-    align: 'center',
-    borderStyle: 'double',
-    borderColor: 'green',
-    dimBorder: true,
-    padding: 1
-  })
-  console.log(box + '\n')
-}
+import utils from './utils'
 
 function main () {
   // show box
-  showBox('CPChain CLI: A scaffold for developing smart contracts on CPChain')
+  utils.showBox('CPChain CLI: A scaffold for developing smart contracts on CPChain')
 
   // program
   program

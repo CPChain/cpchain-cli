@@ -180,6 +180,20 @@ cpchain-cli transfer --to 0x1fbBacADcD78f3508aa55bd948fE27660E58a0d2 --amount 0.
 
 ```
 
+## Generate Typescript Code for Using You Solidity
+
+This tool provide a command `generate-sol-sdk` to help developers generate code in typescript. The generated code can help developers directly call the methods in solidity contract. Command as below:
+
+```bash
+
+yarn build
+
+cpchain-cli generate-sol-sdk --builtContract build/contracts/Game.json
+
+```
+
+After executing this command, this tool will generate a file in `src/generated`, and show you a demo snippet.
+
 ## FAQ
 
 ### 为什么不用 swc 打包

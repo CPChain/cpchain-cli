@@ -1,12 +1,17 @@
 import { EventItem, AbiItem } from './types'
 
+export interface BuildResult {
+  result: string
+  demo: string
+}
+
 export interface IContractSdkBuilder {
   setName(name: string): IContractSdkBuilder
   addEvent(e: EventItem): IContractSdkBuilder
   addEvents(e: EventItem[]): IContractSdkBuilder
   addMethod(m: AbiItem): IContractSdkBuilder
   addMethods(m: AbiItem[]): IContractSdkBuilder
-  build(): string
+  build(): BuildResult
 }
 
 const tmpl = `/* eslint-disable @typescript-eslint/no-unused-vars */
@@ -126,7 +131,34 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
       .replace(/{{txParamsStr}}/g, txParamsStr)
   }
 
-  build (): string {
+  buildDemo () : string {
+    const tmpl = `import cpc from 'cpchain-typescript-sdk'
+import { {{name}}Viewer, {{name}}Caller } from 'src/generated/{{name}}.ts'
+import utils from 'src/utils'
+
+// The address of the contract
+const contractAddress = '<address>'
+// Create network provider
+const provider = cpc.providers.createJsonRpcProvider('https://civilian.testnet.cpchain.io', 41)
+
+async function main () {
+  // Please use your own wallet
+  const wallet = await utils.wallet.getWallet('<keystore file>', '<password>')
+  wallet.connect(provider)
+  // Create viewer
+  const viewer = new {{name}}Viewer(provider, contractAddress)
+  // Create caller
+  const caller = new {{name}}Caller(wallet, contractAddress)
+
+  // call functions
+  // ...
+}
+
+main()`.replace(/{{name}}/g, this.name)
+    return tmpl
+  }
+
+  build (): BuildResult {
     // abi
     const abiGenerated = `const abi = ${this.abi}`
     // body
@@ -158,7 +190,10 @@ export class ContractSdkBuilder implements IContractSdkBuilder {
         .replace('{{name}}', e.name)
         .replace('{{fields}}', fields)
     }).join('\n')
-    return `${tmplGenerated}\n${eventTmplGenerated}\n${viewerGenerated}\n\n${callerGenerated}\n`
+    return {
+      result: `${tmplGenerated}\n${eventTmplGenerated}\n${viewerGenerated}\n\n${callerGenerated}\n`,
+      demo: this.buildDemo()
+    }
   }
 }
 
