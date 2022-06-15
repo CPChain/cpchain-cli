@@ -137,6 +137,9 @@ async function callViewMethod (options: Options) {
   if (!myContract[options.methodName]) {
     utils.logger.fatal(`Method ${options.methodName} not found`)
   }
+  if (options.parameters && typeof options.parameters === 'string') {
+    options.parameters = (options.parameters as string).split(',')
+  }
   const r = await myContract[options.methodName](...options.parameters)
   console.log(r)
 }
@@ -149,6 +152,9 @@ async function callMethod (options: Options) {
   const params: {value?: any} = {}
   if (options.amount) {
     params.value = cpc.utils.parseCPC(options.amount)
+  }
+  if (options.parameters && typeof options.parameters === 'string') {
+    options.parameters = (options.parameters as string).split(',')
   }
   const tx = await myContract[options.methodName](...options.parameters, params)
   utils.logger.info(`Transaction hash is ${tx.hash}, please wait for confirmation...`)

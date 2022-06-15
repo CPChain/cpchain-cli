@@ -109,17 +109,19 @@ If you want to check options, you can use `cpcchain-cli contract view -h`, for e
 
 ```bash
 
-cpchain-cli contract view --builtContract build/contracts/MyContract.json --contract-address <contract address> --methodName <method name of parameter name>
+cpchain-cli contract view --builtContract build/contracts/MyContract.json --contract-address <contract address> --methodName <method name of parameter name> --parameters <parameters splited by ,>
 
 ```
 
 *You can add `--built-contract` and `--contract-address` to the `cpchain-cli.toml` as above. Then you don't need to pass these two options in command, just run: `cpchain-cli contract view --methodName <method name>`.*
 
+If your method needs to specify parameters, use `--parameters`.
+
 If you want to call your contract, you can use `cpchain-cli contract call -h`, for example:
 
 ```bash
 
-cpchain-cli contract call -c build/contracts/MyContract.json --contract-address <contract address> -m <function name> --amount <amount> -k <keystore file> --endpoint https://civilian.testnet.cpchain.io --chainID 41
+cpchain-cli contract call -c build/contracts/MyContract.json --contract-address <contract address> -m <function name> --amount <amount> -k <keystore file> --endpoint https://civilian.testnet.cpchain.io --chainID 41 --parameters <parameters splited by ,>
 
 ```
 
