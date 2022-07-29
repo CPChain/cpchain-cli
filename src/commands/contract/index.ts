@@ -1,7 +1,6 @@
 import { Command } from 'commander'
 import utils from '../../utils'
-import cpc from 'cpchain-typescript-sdk'
-import { CPCWallet } from 'cpchain-typescript-sdk/lib/src/wallets'
+import cpc, { CPCWallet } from 'cpchain-typescript-sdk'
 import path from 'path'
 import {
   ChainOptions,
