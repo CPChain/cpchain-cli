@@ -8,6 +8,7 @@ import createServerCommand from './commands/create-server'
 import createTransferCommand from './commands/transfer'
 import createAccountCommand from './commands/account'
 import createGenerateCommand from './commands/generate-sol-sdk'
+import { dappCommands } from './commands/dapps'
 import utils from './utils'
 
 function main () {
@@ -31,6 +32,9 @@ function main () {
   createTransferCommand(program)
   // Generate command
   createGenerateCommand(program)
+
+  // dapps command
+  dappCommands.map(cmd => cmd(program))
 
   // output help information on unknown commands
   program.on('command:*', ([cmd]) => {
