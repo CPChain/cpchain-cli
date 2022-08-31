@@ -37,7 +37,7 @@ interface SolcDockerServiceImplProps {
 }
 
 class SolcDockerServiceImpl implements SolcDockerService {
-  tag: string = '0.4.24'
+  tag: string = '0.4.25'
   supportedTags = ['0.4.24', '0.4.25']
   commandPrefix: string
   hooks: Hooks
@@ -54,7 +54,7 @@ class SolcDockerServiceImpl implements SolcDockerService {
   get command () {
     return 'docker run --platform=linux/amd64 --rm -i ethereum/solc:' +
       this.tag +
-      ' --standard-json '
+      ' --bin --abi '
   }
 
   async checkIfLocalAlreadyExists (tag: string) {

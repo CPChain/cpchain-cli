@@ -30,6 +30,9 @@
   "bugs": {
     "url": "https://github.com/CPChain/cpchain-cli/issues"
   },
+  "engines": {
+    "node": ">=14.14.0"
+  },
   "homepage": "https://github.com/CPChain/cpchain-cli#readme",
   "devDependencies": {
     "@swc/cli": "^0.1.56",
