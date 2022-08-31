@@ -11,3 +11,4 @@ coverage
 
 src/generated
 .cpchain-cache
+build
