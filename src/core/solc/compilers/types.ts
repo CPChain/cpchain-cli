@@ -9,6 +9,7 @@ export interface CompileResult {
   contractName: string
   abi: string
   bytecode: string
+  isEntry?: boolean
 }
 
 export interface Compiler {

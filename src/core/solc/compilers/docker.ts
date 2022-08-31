@@ -77,6 +77,9 @@ class SolcDockerCompilerImpl implements SolcDockerCompiler {
       const [contractFile, contractName, bytecode, abi] = tmpContracts.filter((_, i) => i > 0)
       contracts.push({ contractFile, contractName, bytecode, abi })
     }
+    if (contracts.length > 0) {
+      contracts.slice(-1)[0].isEntry = true
+    }
     return contracts
   }
 
