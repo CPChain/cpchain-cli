@@ -7,6 +7,7 @@ import truffle from './truffle'
 import logger from './logger'
 import wallet from './wallet'
 import boxen from 'boxen'
+import prompts from 'prompts'
 
 // 至少一个字母、至少一个数字、至少一个特殊字符
 const regexPassword = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
@@ -27,6 +28,16 @@ function showBox (message: string) {
     padding: 1
   })
   console.log(box + '\n')
+}
+
+async function inputText<T extends string | number> (message: string, type?: 'string' | 'number', defaultValue?: T): Promise<T> {
+  const response = await prompts([{
+    type: type === 'number' ? 'number' : 'text',
+    name: 'value',
+    message: message,
+    initial: defaultValue
+  }])
+  return response.value
 }
 
 export default {
@@ -103,6 +114,7 @@ export default {
       })
     })
   },
+  inputText,
   loader,
   truffle,
   logger,

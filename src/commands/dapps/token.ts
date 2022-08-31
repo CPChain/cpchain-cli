@@ -19,10 +19,10 @@ async function publishToken (options: any) {
   const wallet = await utils.wallet.getWallet(keystore, password)
 
   // read Token name
-  const tokenName = 'CPChain'
-  const symbol = 'CPC'
+  const tokenName = await utils.inputText('Please input token name:')
+  const symbol = await utils.inputText('Please input token symbol:')
   const decimals = 18
-  const initialAmount = 0
+  const initialAmount = await utils.inputText('Please input the initial amount:', 'number')
 
   // confirm
   const confirm = await utils.inputConfirm(`Are you sure to publish token ${tokenName}?`)
