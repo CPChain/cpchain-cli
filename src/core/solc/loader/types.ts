@@ -8,6 +8,6 @@ export interface Loader {
    * @param entryContractPath Entrypoint contract
    * @return path of a directory
    */
-  load (entryContractPath: string): string
+  load (entryContractPath: string): { dir: string, entry: string }
   clean (dir: string)
 }

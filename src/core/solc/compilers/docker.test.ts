@@ -1,7 +1,7 @@
-import { createSolcDockerService } from './docker'
+import { createSolcDockerCompiler } from './docker'
 
 test('Test Solc docker', async () => {
-  const solcSrv = createSolcDockerService({
+  const solcSrv = createSolcDockerCompiler({
     hooks: {
       onDownloadStarted () {
         console.log('Download started')

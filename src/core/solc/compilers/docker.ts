@@ -1,7 +1,9 @@
-import { SolcDockerService, SolcImage } from './types'
+import { SolcDockerCompiler, SolcImage } from './types'
 import xfetch from 'cross-fetch'
 import { execSync } from 'child_process'
 import semver from 'semver'
+import fs from 'fs'
+import path from 'path'
 
 const DOCKER_HUB_TAGS_URL = 'https://registry.hub.docker.com/v2/repositories/ethereum/solc/tags/?'
 
@@ -31,18 +33,18 @@ interface Hooks {
   onDownloadSuccess?: () => void
 }
 
-interface SolcDockerServiceImplProps {
+interface SolcDockerCompilerImplProps {
   tag?: string
   hooks?: Hooks
 }
 
-class SolcDockerServiceImpl implements SolcDockerService {
+class SolcDockerCompilerImpl implements SolcDockerCompiler {
   tag: string = '0.4.25'
   supportedTags = ['0.4.24', '0.4.25']
   commandPrefix: string
   hooks: Hooks
 
-  constructor ({ tag, hooks }: SolcDockerServiceImplProps) {
+  constructor ({ tag, hooks }: SolcDockerCompilerImplProps) {
     this.tag = tag || this.tag
     this.hooks = hooks
     if (!this.supportedTags.includes(this.tag)) {
@@ -51,10 +53,24 @@ class SolcDockerServiceImpl implements SolcDockerService {
     this.checkIfLocalAlreadyExists(this.tag)
   }
 
-  get command () {
-    return 'docker run --platform=linux/amd64 --rm -i ethereum/solc:' +
-      this.tag +
-      ' --bin --abi '
+  compile (entry: string) {
+    if (!fs.existsSync(entry)) {
+      throw new Error(`${entry} not found`)
+    }
+    if (fs.statSync(entry).isDirectory()) {
+      throw new Error(`${entry} is a directoy rather a file`)
+    }
+    if (!path.isAbsolute(entry)) {
+      throw new Error(`${entry} is not an absolute path`)
+    }
+    if (!entry.endsWith('.sol')) {
+      throw new Error(`${entry} is not a solidity file`)
+    }
+    const entryContractPath = entry.split('/').slice(-1)[0]
+    // start a container to compile solidity
+    const cmd = `docker run -i --workdir /src --rm -v ${path.dirname(entry)}:/src ethereum/solc:${this.tag} --bin --abi ${entryContractPath}`
+    const result = execSync(cmd)
+    console.log(result.toString())
   }
 
   async checkIfLocalAlreadyExists (tag: string) {
@@ -102,6 +118,6 @@ class SolcDockerServiceImpl implements SolcDockerService {
   }
 }
 
-export const createSolcDockerService = ({ hooks }: { hooks?: Hooks}): SolcDockerService => {
-  return new SolcDockerServiceImpl({ hooks })
+export const createSolcDockerCompiler = ({ hooks }: { hooks?: Hooks}): SolcDockerCompiler => {
+  return new SolcDockerCompilerImpl({ hooks })
 }

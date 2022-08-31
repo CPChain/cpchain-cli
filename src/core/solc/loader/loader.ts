@@ -114,7 +114,7 @@ class LoaderImpl implements Loader {
     return contracts
   }
 
-  load (entryContractPath: string): string {
+  load (entryContractPath: string) {
     const contracts = this.loadAndParseContract(entryContractPath)
     // store all contracts in a directory
     const cacheDir = DEFAULT_CACHE_DIR
@@ -123,7 +123,10 @@ class LoaderImpl implements Loader {
     contracts.forEach(i => {
       fs.writeFileSync(path.join(cacheDir, i.name), i.code)
     })
-    return cacheDir
+    return {
+      dir: cacheDir,
+      entry: contracts.slice(-1)[0].name
+    }
   }
 
   clean (dir: string) {
