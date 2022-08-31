@@ -12,7 +12,7 @@ export interface CompileResult {
 }
 
 export interface Compiler {
-  compile(entry: string): any
+  compile(entry: string): CompileResult[]
 }
 
 export interface SolcDockerCompiler extends Compiler {

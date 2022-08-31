@@ -9,5 +9,6 @@ test('Load and compile test', () => {
   const dir = loader.load('./loader/fixtures/src/Entry.sol')
   const compiler = createSolcDockerCompiler({})
   const entryPath = path.join(__dirname, dir.dir, dir.entry)
-  compiler.compile(entryPath)
+  const results = compiler.compile(entryPath)
+  console.log(results)
 })

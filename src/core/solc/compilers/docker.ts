@@ -1,4 +1,4 @@
-import { SolcDockerCompiler, SolcImage } from './types'
+import { CompileResult, SolcDockerCompiler, SolcImage } from './types'
 import xfetch from 'cross-fetch'
 import { execSync } from 'child_process'
 import semver from 'semver'
@@ -70,7 +70,14 @@ class SolcDockerCompilerImpl implements SolcDockerCompiler {
     // start a container to compile solidity
     const cmd = `docker run -i --workdir /src --rm -v ${path.dirname(entry)}:/src ethereum/solc:${this.tag} --bin --abi ${entryContractPath}`
     const result = execSync(cmd)
-    console.log(result.toString())
+    const regex = /=======\s([a-zA-Z0-9_]+\.sol):([a-zA-Z0-9_]+)\s=======\s+Binary:\s+([0-9a-z]+)\s+Contract JSON ABI\s+(.*)\s+/g
+    let tmpContracts
+    const contracts: CompileResult[] = []
+    while ((tmpContracts = regex.exec(result.toString())) !== null) {
+      const [contractFile, contractName, bytecode, abi] = tmpContracts.filter((_, i) => i > 0)
+      contracts.push({ contractFile, contractName, bytecode, abi })
+    }
+    return contracts
   }
 
   async checkIfLocalAlreadyExists (tag: string) {
