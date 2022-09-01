@@ -1,6 +1,7 @@
 
-import { publishTokenCmd } from './token'
+import { publishTokenCmd, tokenInfoCmd } from './token'
 
 export const dappCommands = [
-  publishTokenCmd
+  publishTokenCmd,
+  tokenInfoCmd
 ]
