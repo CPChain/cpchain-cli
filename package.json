@@ -1,6 +1,6 @@
 {
   "name": "cpchain-cli",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "description": "A CLI tool for developing smart contracts on CPChain mainnet",
   "main": "src/index.ts",
   "type": "module",
@@ -16,7 +16,7 @@
     "pub": "npm run build && npm publish --access public"
   },
   "bin": {
-    "cpchain-cli": "dist/bundle.cjs"
+    "cpchain-cli": "./bundle"
   },
   "repository": {
     "type": "git",

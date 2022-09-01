@@ -33,7 +33,7 @@ export default {
     mainFields: ['main', 'module']
   },
   output: {
-    filename: 'bundle.cjs',
+    filename: 'bundle',
     path: path.resolve(__dirname, 'dist')
   },
   externals: {
